@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}My Profile – Student Hub{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <div class="profile-header">
+    <div class="profile-avatar" aria-hidden="true">
+      {{ student.first_name[0] }}{{ student.last_name[0] }}
+    </div>
+    <div class="profile-header__info">
+      <h1>{{ student.full_name }}</h1>
+      <p>{{ student.email }} · <span style="font-family:monospace; font-size:13px; color:var(--blue);">{{ student.student_id }}</span></p>
+    </div>
+  </div>
+
+  <form method="POST" action="{{ url_for('profile') }}" novalidate>
+    {{ form.hidden_tag() }}
+
+    <!-- Read-only identifiers -->
+    <div class="profile-section">
+      <h2>Account Information</h2>
+      <div class="info-row">
+        <span class="info-row__label">Student ID</span>
+        <span class="info-row__value" style="font-family:monospace; color:var(--blue);">{{ student.student_id }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-row__label">Email Address</span>
+        <span class="info-row__value">{{ student.email }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-row__label">Registered</span>
+        <span class="info-row__value">{{ student.registration_date.strftime('%B %-d, %Y at %-I:%M %p') }}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-row__label">Last Updated</span>
+        <span class="info-row__value">{{ student.updated_at.strftime('%B %-d, %Y') if student.updated_at else '—' }}</span>
+      </div>
+    </div>
+
+    <!-- Personal -->
+    <div class="profile-section">
+      <h2>Personal Information</h2>
+      <div class="field-grid">
+        <div class="form-group">
+          {{ form.first_name.label }}
+          {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), required=True) }}
+          {% for err in form.first_name.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="form-group">
+          {{ form.last_name.label }}
+          {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), required=True) }}
+          {% for err in form.last_name.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        {{ form.phone.label }}
+        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), required=True) }}
+        {% for err in form.phone.errors %}
+          <div class="invalid-feedback" style="display:block">{{ err }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Address -->
+    <div class="profile-section">
+      <h2>Address</h2>
+      <div class="form-group">
+        {{ form.street.label }}
+        {{ form.street(class="form-control" + (" is-invalid" if form.street.errors else ""), required=True) }}
+        {% for err in form.street.errors %}
+          <div class="invalid-feedback" style="display:block">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <div class="field-grid">
+        <div class="form-group">
+          {{ form.city.label }}
+          {{ form.city(class="form-control" + (" is-invalid" if form.city.errors else ""), required=True) }}
+          {% for err in form.city.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="form-group">
+          {{ form.state.label }}
+          {{ form.state(class="form-control" + (" is-invalid" if form.state.errors else ""), required=True) }}
+          {% for err in form.state.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="form-group">
+          {{ form.zip_code.label }}
+          {{ form.zip_code(class="form-control" + (" is-invalid" if form.zip_code.errors else ""), required=True) }}
+          {% for err in form.zip_code.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="form-group">
+          {{ form.country.label }}
+          {{ form.country(class="form-control" + (" is-invalid" if form.country.errors else ""), required=True) }}
+          {% for err in form.country.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Academic -->
+    <div class="profile-section">
+      <h2>Academic Details</h2>
+      <div class="form-group">
+        {{ form.high_school.label }}
+        {{ form.high_school(class="form-control" + (" is-invalid" if form.high_school.errors else ""), required=True) }}
+        {% for err in form.high_school.errors %}
+          <div class="invalid-feedback" style="display:block">{{ err }}</div>
+        {% endfor %}
+      </div>
+      <div class="field-grid">
+        <div class="form-group">
+          {{ form.graduation_year.label }}
+          {{ form.graduation_year(class="form-control" + (" is-invalid" if form.graduation_year.errors else ""), required=True) }}
+          {% for err in form.graduation_year.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+        <div class="form-group">
+          {{ form.enrollment_type.label }}
+          {{ form.enrollment_type(class="form-control" + (" is-invalid" if form.enrollment_type.errors else ""), required=True) }}
+          {% for err in form.enrollment_type.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="form-group">
+        {{ form.major.label }}
+        {{ form.major(class="form-control" + (" is-invalid" if form.major.errors else ""), required=True) }}
+        {% for err in form.major.errors %}
+          <div class="invalid-feedback" style="display:block">{{ err }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <button type="submit" class="btn btn--primary">Save Changes</button>
+      <a href="{{ url_for('dashboard') }}" class="btn btn--secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

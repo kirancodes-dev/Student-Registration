@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Registration Confirmed – Student Hub{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+  <div class="confirm-card">
+    <div class="confirm-card__checkmark" aria-hidden="true">✓</div>
+
+    <h1 style="font-size:26px; font-weight:800; letter-spacing:-0.6px; margin-bottom:8px;">
+      You're registered, {{ student_name }}!
+    </h1>
+    <p style="color:var(--gray-5); font-size:15px; margin-bottom:4px;">Your unique Student ID is:</p>
+
+    <div class="confirm-card__sid" aria-label="Student ID: {{ student_id }}">{{ student_id }}</div>
+
+    <p style="color:var(--gray-5); font-size:14px; max-width:340px; margin:0 auto 32px; line-height:1.6;">
+      Save this ID – you'll need it to reference your application. Check your email for next steps.
+    </p>
+
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="{{ url_for('login') }}" class="btn btn--primary">Sign In to Dashboard →</a>
+      <a href="{{ url_for('index') }}" class="btn btn--secondary">Back to Home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

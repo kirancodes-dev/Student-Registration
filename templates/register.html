@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}Register – Student Hub{% endblock %}
+
+{% block content %}
+<div class="register-container">
+  <div class="register-card">
+    <div class="auth-card__icon">🎓</div>
+    <h1 class="auth-card__title">Create your account</h1>
+    <p class="auth-card__sub">Fill in the steps below to register as a new student.</p>
+
+    <!-- Step progress -->
+    <nav class="stepper" aria-label="Registration steps">
+      <div class="step {% if step_errors[1] %}active{% elif not step_errors[2] and not step_errors[3] and not step_errors[4] %}active{% endif %}" data-step="0">
+        <div class="step__dot">1</div>
+        <span class="step__label">Personal</span>
+      </div>
+      <div class="step" data-step="1">
+        <div class="step__dot">2</div>
+        <span class="step__label">Address</span>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step__dot">3</div>
+        <span class="step__label">Academic</span>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step__dot">4</div>
+        <span class="step__label">Account</span>
+      </div>
+    </nav>
+
+    <form id="registration-form" method="POST" action="{{ url_for('register') }}" novalidate>
+      {{ form.hidden_tag() }}
+
+      <!-- ─── Step 1: Personal ─────────────────────────── -->
+      <div class="form-panel active" data-panel="0">
+        <div class="field-grid">
+          <div class="form-group">
+            {{ form.first_name.label }}
+            {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), placeholder="Jane", required=True, minlength=2) }}
+            {% for err in form.first_name.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.last_name.label }}
+            {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), placeholder="Smith", required=True, minlength=2) }}
+            {% for err in form.last_name.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          {{ form.dob.label }}
+          {{ form.dob(class="form-control" + (" is-invalid" if form.dob.errors else ""), required=True) }}
+          {% for err in form.dob.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.gender.label }}
+          {{ form.gender(class="form-control" + (" is-invalid" if form.gender.errors else ""), required=True) }}
+          {% for err in form.gender.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.email.label }}
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="jane@example.com", required=True) }}
+          {% for err in form.email.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.phone.label }}
+          {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="+1 555 000 0000", required=True) }}
+          {% for err in form.phone.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn--primary" data-next>Continue →</button>
+        </div>
+      </div>
+
+      <!-- ─── Step 2: Address ──────────────────────────── -->
+      <div class="form-panel" data-panel="1">
+        <div class="form-group">
+          {{ form.street.label }}
+          {{ form.street(class="form-control" + (" is-invalid" if form.street.errors else ""), placeholder="123 Maple Street", required=True) }}
+          {% for err in form.street.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="field-grid">
+          <div class="form-group">
+            {{ form.city.label }}
+            {{ form.city(class="form-control" + (" is-invalid" if form.city.errors else ""), placeholder="San Francisco", required=True) }}
+            {% for err in form.city.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.state.label }}
+            {{ form.state(class="form-control" + (" is-invalid" if form.state.errors else ""), placeholder="California", required=True) }}
+            {% for err in form.state.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="form-group">
+            {{ form.zip_code.label }}
+            {{ form.zip_code(class="form-control" + (" is-invalid" if form.zip_code.errors else ""), placeholder="94103", required=True) }}
+            {% for err in form.zip_code.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.country.label }}
+            {{ form.country(class="form-control" + (" is-invalid" if form.country.errors else ""), placeholder="United States", required=True) }}
+            {% for err in form.country.errors %}
+              <div class="invalid-feedback" style="display:block">{{ err }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn--secondary" data-prev>← Back</button>
+          <button type="button" class="btn btn--primary" data-next>Continue →</button>
+        </div>
+      </div>
+
+      <!-- ─── Step 3: Academic ─────────────────────────── -->
+      <div class="form-panel" data-panel="2">
+        <div class="form-group">
+          {{ form.high_school.label }}
+          {{ form.high_school(class="form-control" + (" is-invalid" if form.high_school.errors else ""), placeholder="Lincoln High School", required=True) }}
+          {% for err in form.high_school.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.graduation_year.label }}
+          {{ form.graduation_year(class="form-control" + (" is-invalid" if form.graduation_year.errors else ""), placeholder="2024", required=True, min=1990, max=2030) }}
+          {% for err in form.graduation_year.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.major.label }}
+          {{ form.major(class="form-control" + (" is-invalid" if form.major.errors else ""), required=True) }}
+          {% for err in form.major.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          {{ form.enrollment_type.label }}
+          {{ form.enrollment_type(class="form-control" + (" is-invalid" if form.enrollment_type.errors else ""), required=True) }}
+          {% for err in form.enrollment_type.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="step-nav">
+          <button type="button" class="btn btn--secondary" data-prev>← Back</button>
+          <button type="button" class="btn btn--primary" data-next>Continue →</button>
+        </div>
+      </div>
+
+      <!-- ─── Step 4: Account ──────────────────────────── -->
+      <div class="form-panel" data-panel="3">
+        <div class="form-group">
+          {{ form.password.label }}
+          {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Min 8 characters", required=True, minlength=8) }}
+          {% for err in form.password.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+          <div class="password-strength">
+            <div class="password-strength__bar"></div>
+          </div>
+          <small class="text-muted" style="font-size:12px; margin-top:4px; display:block">
+            <span class="strength-label"></span>
+            &nbsp;Use uppercase, lowercase, numbers &amp; symbols.
+          </small>
+        </div>
+
+        <div class="form-group">
+          {{ form.confirm_password.label }}
+          {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Repeat your password", required=True) }}
+          {% for err in form.confirm_password.errors %}
+            <div class="invalid-feedback" style="display:block">{{ err }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="toggle-wrapper" role="group">
+          {{ form.terms(id="terms_check") }}
+          <div class="toggle-track" role="checkbox" aria-checked="false" aria-labelledby="terms-label" tabindex="0"></div>
+          <label class="toggle-label" id="terms-label" for="terms_check">
+            I agree to the <a href="#" tabindex="-1">Terms &amp; Conditions</a> and <a href="#" tabindex="-1">Privacy Policy</a>.
+          </label>
+        </div>
+        {% for err in form.terms.errors %}
+          <div class="invalid-feedback" style="display:block; margin-top:-12px; margin-bottom:12px;">{{ err }}</div>
+        {% endfor %}
+
+        <div class="step-nav">
+          <button type="button" class="btn btn--secondary" data-prev>← Back</button>
+          <button type="submit" class="btn btn--primary">Create Account ✓</button>
+        </div>
+      </div>
+    </form>
+
+    <p class="text-center mt-20 text-muted" style="font-size:14px">
+      Already registered? <a href="{{ url_for('login') }}">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard – Student Hub{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+  <div class="admin-header">
+    <div>
+      <h1>🛡️ Admin Dashboard</h1>
+      <p class="text-muted" style="font-size:13px; margin-top:2px;">Manage registered students · {{ now.strftime('%B %-d, %Y') }}</p>
+    </div>
+
+    <form method="GET" action="{{ url_for('admin_dashboard') }}" role="search" style="display:flex; gap:8px; align-items:center;">
+      <div class="search-bar">
+        <input class="search-input" type="search" name="q" value="{{ search }}"
+               placeholder="Search name, email, ID…" aria-label="Search students" />
+      </div>
+      <button type="submit" class="btn btn--primary btn--sm">Search</button>
+      {% if search %}
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn--secondary btn--sm">Clear</a>
+      {% endif %}
+    </form>
+
+    <a href="{{ url_for('logout') }}" class="btn btn--secondary btn--sm">Sign Out</a>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-pill">
+      <div class="stat-pill__label">Total Students</div>
+      <div class="stat-pill__value">{{ total }}</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill__label">Showing</div>
+      <div class="stat-pill__value">{{ students|length }}</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill__label">Full-time</div>
+      <div class="stat-pill__value">{{ students|selectattr('enrollment_type','eq','full_time')|list|length }}</div>
+    </div>
+    <div class="stat-pill">
+      <div class="stat-pill__label">Part-time</div>
+      <div class="stat-pill__value">{{ students|selectattr('enrollment_type','eq','part_time')|list|length }}</div>
+    </div>
+  </div>
+
+  {% if students %}
+  <div class="table-wrapper">
+    <table class="data-table" aria-label="Student registrations">
+      <thead>
+        <tr>
+          <th data-sort="student_id">
+            <a href="{{ url_for('admin_dashboard', q=search, sort='student_id', order='asc' if sort=='student_id' and order=='desc' else 'desc') }}">
+              Student ID
+            </a>
+          </th>
+          <th data-sort="last_name">
+            <a href="{{ url_for('admin_dashboard', q=search, sort='last_name', order='asc' if sort=='last_name' and order=='desc' else 'desc') }}">
+              Name
+            </a>
+          </th>
+          <th data-sort="email">
+            <a href="{{ url_for('admin_dashboard', q=search, sort='email', order='asc' if sort=='email' and order=='desc' else 'desc') }}">
+              Email
+            </a>
+          </th>
+          <th>Major</th>
+          <th>Enrollment</th>
+          <th data-sort="registration_date">
+            <a href="{{ url_for('admin_dashboard', q=search, sort='registration_date', order='asc' if sort=='registration_date' and order=='desc' else 'desc') }}">
+              Registered
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td><span class="student-id-badge">{{ s.student_id }}</span></td>
+          <td>
+            <strong>{{ s.full_name }}</strong>
+            <br><small style="color:var(--gray-5);">{{ s.gender.replace('_',' ').title() }}</small>
+          </td>
+          <td style="color:var(--gray-4)">{{ s.email }}</td>
+          <td>{{ s.major.replace('_',' ').title() }}</td>
+          <td>
+            <span class="enrollment-badge enrollment-badge--{{ 'full' if s.enrollment_type == 'full_time' else 'part' }}">
+              {{ s.enrollment_type.replace('_','-').title() }}
+            </span>
+          </td>
+          <td style="color:var(--gray-5); white-space:nowrap;">
+            {{ s.registration_date.strftime('%b %-d, %Y') }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% else %}
+  <div style="text-align:center; padding:80px 20px; color:var(--gray-5);">
+    <div style="font-size:48px; margin-bottom:16px;">🔍</div>
+    <h3 style="font-size:18px; font-weight:700; color:var(--gray-3); margin-bottom:8px;">No students found</h3>
+    <p style="font-size:14px;">
+      {% if search %}
+        No results for "<strong>{{ search }}</strong>". Try a different search.
+      {% else %}
+        No students have registered yet.
+      {% endif %}
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

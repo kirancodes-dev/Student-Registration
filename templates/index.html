@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Student Hub – Register Today{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero__badge">Applications Open · Fall 2026</div>
+  <h1 class="hero__title">Your academic journey starts here.</h1>
+  <p class="hero__sub">Register in minutes, manage your enrollment, and stay on track – all in one place.</p>
+  <div class="hero__actions">
+    <a href="{{ url_for('register') }}" class="btn btn--primary">Start Application →</a>
+    <a href="{{ url_for('login') }}" class="btn btn--secondary">Sign In</a>
+  </div>
+</section>
+
+<!-- Feature Cards -->
+<section class="features" aria-label="Key features">
+  <div class="feature-card">
+    <div class="feature-card__icon">⚡️</div>
+    <h3 class="feature-card__title">Fast &amp; Simple</h3>
+    <p class="feature-card__desc">Four-step registration that takes under three minutes. No paperwork, no waiting.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-card__icon">🔒</div>
+    <h3 class="feature-card__title">Secure by Default</h3>
+    <p class="feature-card__desc">bcrypt password hashing, CSRF protection, and rate limiting keep your account safe.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-card__icon">📱</div>
+    <h3 class="feature-card__title">Mobile-First Design</h3>
+    <p class="feature-card__desc">Looks great on every device – phone, tablet, or desktop – with smooth animations.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-card__icon">🎯</div>
+    <h3 class="feature-card__title">Personal Dashboard</h3>
+    <p class="feature-card__desc">Track profile completion, view important deadlines, and manage your information anytime.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-card__icon">🎓</div>
+    <h3 class="feature-card__title">20+ Programs</h3>
+    <p class="feature-card__desc">From Computer Science to Nursing – choose the program that fits your ambitions.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-card__icon">✅</div>
+    <h3 class="feature-card__title">Instant Confirmation</h3>
+    <p class="feature-card__desc">Get your unique student ID the moment you submit. No delays, no callbacks.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Student Hub{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1 class="dashboard-header__greeting">Good {{ 'morning' if now.hour < 12 else ('afternoon' if now.hour < 17 else 'evening') }}, {{ student.first_name }} 👋</h1>
+    <p class="dashboard-header__sub">{{ now.strftime('%A, %B %-d, %Y') }} · Student ID: <strong>{{ student.student_id }}</strong></p>
+  </div>
+
+  <!-- Profile completion ring -->
+  <div class="progress-ring-container">
+    <div class="progress-ring" aria-label="Profile {{ student.profile_completion }}% complete">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <circle class="progress-ring__bg" cx="50" cy="50" r="40" />
+        <circle class="progress-ring__fill" cx="50" cy="50" r="40"
+                data-pct="{{ student.profile_completion }}" />
+      </svg>
+      <div class="progress-ring__text">
+        <span class="progress-ring__pct">{{ student.profile_completion }}%</span>
+        <span class="progress-ring__label">Complete</span>
+      </div>
+    </div>
+    <div class="progress-ring-info">
+      <h3>Profile completion</h3>
+      <p>
+        {% if student.profile_completion == 100 %}
+          Your profile is complete – you're all set!
+        {% else %}
+          Complete your profile to improve your application.
+        {% endif %}
+      </p>
+      {% if student.profile_completion < 100 %}
+        <a href="{{ url_for('profile') }}" class="btn btn--secondary btn--sm" style="margin-top:12px;">Update Profile</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Quick action cards -->
+  <div class="dashboard-grid">
+    <a href="{{ url_for('profile') }}" class="dash-card dash-card--blue">
+      <div class="dash-card__icon">👤</div>
+      <div class="dash-card__title">My Profile</div>
+      <div class="dash-card__desc">View &amp; update your personal details.</div>
+    </a>
+    <a href="#" class="dash-card dash-card--green">
+      <div class="dash-card__icon">📚</div>
+      <div class="dash-card__title">Course Catalog</div>
+      <div class="dash-card__desc">Browse available courses for your major.</div>
+    </a>
+    <a href="#" class="dash-card dash-card--orange">
+      <div class="dash-card__icon">📅</div>
+      <div class="dash-card__title">Schedule</div>
+      <div class="dash-card__desc">View your class timetable and events.</div>
+    </a>
+    <a href="#" class="dash-card dash-card--purple">
+      <div class="dash-card__icon">💬</div>
+      <div class="dash-card__title">Messages</div>
+      <div class="dash-card__desc">Check messages from faculty and staff.</div>
+    </a>
+    <a href="#" class="dash-card dash-card--red">
+      <div class="dash-card__icon">💰</div>
+      <div class="dash-card__title">Financial Aid</div>
+      <div class="dash-card__desc">Apply for scholarships and financial aid.</div>
+    </a>
+    <a href="{{ url_for('logout') }}" class="dash-card" style="border: 1.5px dashed var(--gray-8);">
+      <div class="dash-card__icon" style="background:var(--gray-10); font-size:24px;">👋</div>
+      <div class="dash-card__title">Sign Out</div>
+      <div class="dash-card__desc">End your current session safely.</div>
+    </a>
+  </div>
+
+  <!-- Upcoming deadlines -->
+  <div class="deadlines-card">
+    <h3>Upcoming Deadlines</h3>
+
+    <div class="deadline-item">
+      <div class="deadline-dot deadline-dot--red"></div>
+      <div>
+        <div class="deadline-item__title">Financial Aid Application</div>
+        <div class="deadline-item__date">June 1, 2026</div>
+      </div>
+      <span class="deadline-item__badge badge--urgent">Urgent</span>
+    </div>
+
+    <div class="deadline-item">
+      <div class="deadline-dot deadline-dot--orange"></div>
+      <div>
+        <div class="deadline-item__title">Course Registration Deadline</div>
+        <div class="deadline-item__date">June 15, 2026</div>
+      </div>
+      <span class="deadline-item__badge badge--soon">Soon</span>
+    </div>
+
+    <div class="deadline-item">
+      <div class="deadline-dot deadline-dot--blue"></div>
+      <div>
+        <div class="deadline-item__title">Fall Semester Orientation</div>
+        <div class="deadline-item__date">August 25, 2026</div>
+      </div>
+      <span class="deadline-item__badge badge--info">Upcoming</span>
+    </div>
+
+    <div class="deadline-item">
+      <div class="deadline-dot deadline-dot--blue"></div>
+      <div>
+        <div class="deadline-item__title">Classes Begin</div>
+        <div class="deadline-item__date">September 2, 2026</div>
+      </div>
+      <span class="deadline-item__badge badge--info">Upcoming</span>
+    </div>
+  </div>
+
+  <!-- Student info summary -->
+  <div class="deadlines-card">
+    <h3>Enrollment Summary</h3>
+    <div class="info-row">
+      <span class="info-row__label">Student ID</span>
+      <span class="info-row__value" style="font-family: monospace;">{{ student.student_id }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row__label">Program</span>
+      <span class="info-row__value">{{ student.major.replace('_', ' ').title() }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row__label">Enrollment Type</span>
+      <span class="info-row__value">{{ student.enrollment_type.replace('_', '-').title() }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row__label">Email</span>
+      <span class="info-row__value">{{ student.email }}</span>
+    </div>
+    <div class="info-row">
+      <span class="info-row__label">Registered On</span>
+      <span class="info-row__value">{{ student.registration_date.strftime('%B %-d, %Y') }}</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
