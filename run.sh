@@ -35,8 +35,9 @@ flask --app app init-db
 
 # 5. Start development server
 echo ""
-echo "  ✅  All set! Starting Flask on http://localhost:5000"
-echo "      Admin panel: http://localhost:5000/admin"
+echo "  ✅  All set! Starting Flask on http://127.0.0.1:5001"
+echo "      Admin panel: http://127.0.0.1:5001/admin"
 echo "      Admin credentials: admin@school.com / Admin123!"
+echo "      NOTE: Port 5000 is reserved by macOS AirPlay — use 5001"
 echo ""
-flask --app app run --debug --port 5000
+flask --app app run --debug --port 5001

@@ -2,151 +2,129 @@
 {% block title %}My Profile – Student Hub{% endblock %}
 
 {% block content %}
-<div class="profile-container">
-  <div class="profile-header">
-    <div class="profile-avatar" aria-hidden="true">
+<div class="px-margin-mobile max-w-lg mx-auto pt-lg pb-xl space-y-lg">
+
+  <!-- Profile header -->
+  <div class="flex items-center gap-md">
+    <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-on-primary text-h2 font-h2 shrink-0">
       {{ student.first_name[0] }}{{ student.last_name[0] }}
     </div>
-    <div class="profile-header__info">
-      <h1>{{ student.full_name }}</h1>
-      <p>{{ student.email }} · <span style="font-family:monospace; font-size:13px; color:var(--blue);">{{ student.student_id }}</span></p>
+    <div>
+      <h1 class="text-h2 font-h2 text-on-surface">{{ student.full_name }}</h1>
+      <p class="text-caption font-caption text-on-surface-variant font-mono">{{ student.student_id }}</p>
+      <!-- Completion chip -->
+      <div class="inline-flex items-center gap-xs mt-xs px-sm py-0.5 rounded-full text-caption font-caption font-bold
+        {% if student.profile_completion == 100 %}bg-secondary-container text-on-secondary-container{% else %}bg-primary-fixed text-primary{% endif %}">
+        <span class="material-symbols-outlined text-[14px]">{% if student.profile_completion == 100 %}check_circle{% else %}pending{% endif %}</span>
+        {{ student.profile_completion }}% complete
+      </div>
     </div>
   </div>
 
   <form method="POST" action="{{ url_for('profile') }}" novalidate>
     {{ form.hidden_tag() }}
 
-    <!-- Read-only identifiers -->
-    <div class="profile-section">
-      <h2>Account Information</h2>
-      <div class="info-row">
-        <span class="info-row__label">Student ID</span>
-        <span class="info-row__value" style="font-family:monospace; color:var(--blue);">{{ student.student_id }}</span>
+    <!-- Read-only account info -->
+    <div class="glass-card rounded-xl p-md shadow-sm space-y-sm">
+      <h2 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider pb-sm border-b border-outline-variant/20">Account Information</h2>
+      {% for label, value, mono in [
+        ('Student ID', student.student_id, True),
+        ('Email Address', student.email, False),
+        ('Registered', student.registration_date.strftime('%B %-d, %Y'), False),
+      ] %}
+      <div class="flex justify-between items-center py-xs border-b border-outline-variant/10 last:border-0">
+        <span class="text-caption font-caption text-on-surface-variant">{{ label }}</span>
+        <span class="text-label-md font-label-md {% if mono %}text-primary font-mono text-caption{% endif %}">{{ value }}</span>
       </div>
-      <div class="info-row">
-        <span class="info-row__label">Email Address</span>
-        <span class="info-row__value">{{ student.email }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-row__label">Registered</span>
-        <span class="info-row__value">{{ student.registration_date.strftime('%B %-d, %Y at %-I:%M %p') }}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-row__label">Last Updated</span>
-        <span class="info-row__value">{{ student.updated_at.strftime('%B %-d, %Y') if student.updated_at else '—' }}</span>
-      </div>
+      {% endfor %}
     </div>
 
     <!-- Personal -->
-    <div class="profile-section">
-      <h2>Personal Information</h2>
-      <div class="field-grid">
-        <div class="form-group">
-          {{ form.first_name.label }}
-          {{ form.first_name(class="form-control" + (" is-invalid" if form.first_name.errors else ""), required=True) }}
-          {% for err in form.first_name.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
+    <div class="glass-card rounded-xl p-md shadow-sm space-y-md">
+      <h2 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider pb-sm border-b border-outline-variant/20">Personal Information</h2>
+      <div class="grid grid-cols-2 gap-md">
+        {% for field, icon in [(form.first_name, 'badge'), (form.last_name, 'badge')] %}
+        <div>
+          <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ field.label.text }}</label>
+          <div class="glass-card rounded-xl px-md flex items-center gap-xs ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+            {{ field(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+          </div>
+          {% for e in field.errors %}<p class="text-caption text-error mt-xs">{{ e }}</p>{% endfor %}
         </div>
-        <div class="form-group">
-          {{ form.last_name.label }}
-          {{ form.last_name(class="form-control" + (" is-invalid" if form.last_name.errors else ""), required=True) }}
-          {% for err in form.last_name.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="form-group">
-        {{ form.phone.label }}
-        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), required=True) }}
-        {% for err in form.phone.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
         {% endfor %}
+      </div>
+      <div>
+        <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.phone.label.text }}</label>
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">phone</span>
+          {{ form.phone(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+        </div>
+        {% for e in form.phone.errors %}<p class="text-caption text-error mt-xs">{{ e }}</p>{% endfor %}
       </div>
     </div>
 
     <!-- Address -->
-    <div class="profile-section">
-      <h2>Address</h2>
-      <div class="form-group">
-        {{ form.street.label }}
-        {{ form.street(class="form-control" + (" is-invalid" if form.street.errors else ""), required=True) }}
-        {% for err in form.street.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
+    <div class="glass-card rounded-xl p-md shadow-sm space-y-md">
+      <h2 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider pb-sm border-b border-outline-variant/20">Address</h2>
+      <div>
+        <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.street.label.text }}</label>
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">home</span>
+          {{ form.street(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-md">
+        {% for f in [form.city, form.state, form.zip_code, form.country] %}
+        <div>
+          <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ f.label.text }}</label>
+          <div class="glass-card rounded-xl px-md ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+            {{ f(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+          </div>
+        </div>
         {% endfor %}
-      </div>
-      <div class="field-grid">
-        <div class="form-group">
-          {{ form.city.label }}
-          {{ form.city(class="form-control" + (" is-invalid" if form.city.errors else ""), required=True) }}
-          {% for err in form.city.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
-        <div class="form-group">
-          {{ form.state.label }}
-          {{ form.state(class="form-control" + (" is-invalid" if form.state.errors else ""), required=True) }}
-          {% for err in form.state.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="field-grid">
-        <div class="form-group">
-          {{ form.zip_code.label }}
-          {{ form.zip_code(class="form-control" + (" is-invalid" if form.zip_code.errors else ""), required=True) }}
-          {% for err in form.zip_code.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
-        <div class="form-group">
-          {{ form.country.label }}
-          {{ form.country(class="form-control" + (" is-invalid" if form.country.errors else ""), required=True) }}
-          {% for err in form.country.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
       </div>
     </div>
 
     <!-- Academic -->
-    <div class="profile-section">
-      <h2>Academic Details</h2>
-      <div class="form-group">
-        {{ form.high_school.label }}
-        {{ form.high_school(class="form-control" + (" is-invalid" if form.high_school.errors else ""), required=True) }}
-        {% for err in form.high_school.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
-        {% endfor %}
-      </div>
-      <div class="field-grid">
-        <div class="form-group">
-          {{ form.graduation_year.label }}
-          {{ form.graduation_year(class="form-control" + (" is-invalid" if form.graduation_year.errors else ""), required=True) }}
-          {% for err in form.graduation_year.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
-        </div>
-        <div class="form-group">
-          {{ form.enrollment_type.label }}
-          {{ form.enrollment_type(class="form-control" + (" is-invalid" if form.enrollment_type.errors else ""), required=True) }}
-          {% for err in form.enrollment_type.errors %}
-            <div class="invalid-feedback" style="display:block">{{ err }}</div>
-          {% endfor %}
+    <div class="glass-card rounded-xl p-md shadow-sm space-y-md">
+      <h2 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider pb-sm border-b border-outline-variant/20">Academic Details</h2>
+      <div>
+        <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.high_school.label.text }}</label>
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">school</span>
+          {{ form.high_school(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
         </div>
       </div>
-      <div class="form-group">
-        {{ form.major.label }}
-        {{ form.major(class="form-control" + (" is-invalid" if form.major.errors else ""), required=True) }}
-        {% for err in form.major.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
-        {% endfor %}
+      <div class="grid grid-cols-2 gap-md">
+        <div>
+          <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.graduation_year.label.text }}</label>
+          <div class="glass-card rounded-xl px-md ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+            {{ form.graduation_year(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+          </div>
+        </div>
+        <div>
+          <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.enrollment_type.label.text }}</label>
+          <div class="glass-card rounded-xl px-md ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+            {{ form.enrollment_type(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="text-caption font-caption text-on-surface-variant mb-xs block">{{ form.major.label.text }}</label>
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[18px]">menu_book</span>
+          {{ form.major(class="bg-transparent border-none focus:ring-0 w-full text-body-md py-sm") }}
+        </div>
       </div>
     </div>
 
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-      <button type="submit" class="btn btn--primary">Save Changes</button>
-      <a href="{{ url_for('dashboard') }}" class="btn btn--secondary">Cancel</a>
+    <div class="flex gap-md">
+      <button type="submit" class="flex-[2] h-[52px] bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-lg hover:shadow-xl active:scale-[0.98] transition-all flex items-center justify-center gap-xs">
+        <span class="material-symbols-outlined text-[20px]">save</span> Save Changes
+      </button>
+      <a href="{{ url_for('dashboard') }}" class="flex-1 h-[52px] border-2 border-outline text-on-surface-variant rounded-xl font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center">
+        Cancel
+      </a>
     </div>
   </form>
 </div>

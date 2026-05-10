@@ -1,39 +1,44 @@
 {% extends "base.html" %}
 {% block title %}Admin Login – Student Hub{% endblock %}
+{% block body_class %}{% endblock %}
 
 {% block content %}
-<div class="auth-container">
-  <div class="auth-card">
-    <div class="auth-card__icon" style="background: linear-gradient(135deg,#1C1C1E,#3A3A3C);">🛡️</div>
-    <h1 class="auth-card__title">Admin Portal</h1>
-    <p class="auth-card__sub">Restricted access – administrators only.</p>
+<div class="min-h-[calc(100vh-64px)] flex items-center justify-center px-margin-mobile py-xl">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-xl">
+      <div class="w-20 h-20 rounded-[28px] bg-inverse-surface flex items-center justify-center mx-auto mb-lg shadow-[0_8px_24px_rgba(46,48,55,0.4)]">
+        <span class="material-symbols-outlined text-inverse-on-surface text-[40px]">admin_panel_settings</span>
+      </div>
+      <h1 class="text-h1 font-h1 text-on-surface">Admin Portal</h1>
+      <p class="text-body-md font-body-md text-on-surface-variant mt-xs">Restricted access — administrators only.</p>
+    </div>
 
     <form method="POST" action="{{ url_for('admin_login') }}" novalidate>
       {{ form.hidden_tag() }}
 
-      <div class="form-group">
-        {{ form.email.label }}
-        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="admin@school.com", autocomplete="email") }}
-        {% for err in form.email.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
-        {% endfor %}
+      <div class="mb-md">
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-on-surface transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[20px]">email</span>
+          {{ form.email(class="bg-transparent border-none focus:ring-0 w-full text-body-md placeholder:text-on-surface-variant/50 py-sm", placeholder="admin@school.com") }}
+        </div>
+        {% for e in form.email.errors %}<p class="text-caption text-error mt-xs">{{ e }}</p>{% endfor %}
       </div>
 
-      <div class="form-group">
-        {{ form.password.label }}
-        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), autocomplete="current-password") }}
-        {% for err in form.password.errors %}
-          <div class="invalid-feedback" style="display:block">{{ err }}</div>
-        {% endfor %}
+      <div class="mb-lg">
+        <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-on-surface transition-all">
+          <span class="material-symbols-outlined text-on-surface-variant text-[20px]">lock</span>
+          {{ form.password(class="bg-transparent border-none focus:ring-0 w-full text-body-md placeholder:text-on-surface-variant/50 py-sm", placeholder="Admin password") }}
+        </div>
+        {% for e in form.password.errors %}<p class="text-caption text-error mt-xs">{{ e }}</p>{% endfor %}
       </div>
 
-      <button type="submit" class="btn btn--primary btn--full" style="background:var(--gray-1);">
+      <button type="submit" class="w-full h-[52px] bg-inverse-surface text-inverse-on-surface rounded-xl font-label-md text-label-md shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all">
         Sign In as Admin
       </button>
     </form>
 
-    <p class="text-center mt-20" style="font-size:13px; color:var(--gray-5);">
-      <a href="{{ url_for('login') }}" style="color:var(--gray-5);">← Student login</a>
+    <p class="text-center mt-xl text-caption font-caption text-on-surface-variant">
+      <a href="{{ url_for('login') }}" class="hover:text-primary transition-colors">← Student login</a>
     </p>
   </div>
 </div>

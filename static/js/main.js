@@ -1,224 +1,129 @@
-/* =========================================================
-   Student Hub – Main JS
-   Multi-step form, validations, micro-interactions
-   ========================================================= */
-
 'use strict';
 
-// ── Nav scroll effect ────────────────────────────────────
-const nav = document.querySelector('.nav');
-if (nav) {
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('nav--scrolled', window.scrollY > 10);
-  }, { passive: true });
-}
-
 // ── Flash auto-dismiss ───────────────────────────────────
-document.querySelectorAll('.flash').forEach(el => {
-  setTimeout(() => {
+setTimeout(() => {
+  document.querySelectorAll('[data-flash]').forEach(el => {
     el.style.opacity = '0';
-    el.style.transform = 'translateY(-6px)';
+    el.style.transform = 'translateY(-8px)';
     el.style.transition = 'opacity 0.4s, transform 0.4s';
     setTimeout(() => el.remove(), 400);
-  }, 5000);
-});
+  });
+}, 5000);
 
-// ── Multi-step Registration Form ─────────────────────────
+// ── Multi-step registration form ─────────────────────────
 (function initMultiStep() {
   const panels = document.querySelectorAll('.form-panel');
-  const steps  = document.querySelectorAll('.step');
+  const dots   = document.querySelectorAll('.step-dot');
   const form   = document.getElementById('registration-form');
   if (!form || panels.length === 0) return;
 
-  let currentStep = 0;
+  const titles = ['Personal Information', 'Address Details', 'Academic Details', 'Create Account'];
+  let current  = 0;
 
-  // If server returned step errors (form re-render after submit),
-  // jump to the first step that has errors.
-  const serverErrors = document.querySelectorAll('.form-control.is-invalid');
-  if (serverErrors.length > 0) {
-    const firstErr = serverErrors[0];
-    const panel = firstErr.closest('.form-panel');
+  // Jump to first panel that has server-side errors
+  document.querySelectorAll('.field-error').forEach(el => {
+    const panel = el.closest('.form-panel');
     if (panel) {
-      currentStep = [...panels].indexOf(panel);
+      const idx = [...panels].indexOf(panel);
+      if (idx < current || current === 0) current = idx;
     }
-  }
+  });
 
   function showStep(idx) {
-    panels.forEach((p, i) => p.classList.toggle('active', i === idx));
-    steps.forEach((s, i) => {
-      s.classList.remove('active', 'completed');
-      if (i < idx)  s.classList.add('completed');
-      if (i === idx) s.classList.add('active');
+    panels.forEach((p, i) => p.classList.toggle('hidden', i !== idx));
+
+    dots.forEach((d, i) => {
+      d.className = 'step-dot w-7 h-7 rounded-full flex items-center justify-center text-caption font-bold transition-all duration-300 ';
+      if (i < idx) {
+        d.classList.add('bg-secondary', 'text-on-secondary');
+        d.innerHTML = '<span class="material-symbols-outlined text-[14px]">check</span>';
+      } else if (i === idx) {
+        d.classList.add('bg-primary', 'text-on-primary');
+        d.textContent = i + 1;
+      } else {
+        d.classList.add('bg-surface-container-highest', 'text-on-surface-variant');
+        d.textContent = i + 1;
+      }
     });
+
+    const pct = Math.round(((idx + 1) / panels.length) * 100);
+    const bar = document.getElementById('progress-bar');
+    if (bar) bar.style.width = pct + '%';
+
+    const lbl = document.getElementById('step-label');
+    if (lbl) lbl.textContent = `Step ${idx + 1} of ${panels.length}`;
+
+    const pctEl = document.getElementById('step-pct');
+    if (pctEl) pctEl.textContent = pct + '% Complete';
+
+    const titleEl = document.getElementById('step-title');
+    if (titleEl) titleEl.textContent = titles[idx] || '';
+
+    current = idx;
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    currentStep = idx;
   }
 
-  showStep(currentStep);
+  showStep(current);
 
-  // Step-specific field lists for inline validation
   const stepFields = [
-    ['first_name', 'last_name', 'dob', 'gender', 'email', 'phone'],
-    ['street', 'city', 'state', 'zip_code', 'country'],
-    ['high_school', 'graduation_year', 'major', 'enrollment_type'],
-    ['password', 'confirm_password', 'terms'],
+    ['first_name','last_name','dob','gender','email','phone'],
+    ['street','city','state','zip_code','country'],
+    ['high_school','graduation_year','major','enrollment_type'],
+    ['password','confirm_password','terms'],
   ];
 
-  function validateField(el) {
-    if (!el) return true;
-    let valid = true;
-    const val = el.value.trim();
-
-    // Required
-    if (el.required && val === '') valid = false;
-
-    // Min-length
-    if (el.minLength > 0 && val.length < el.minLength) valid = false;
-
-    // Email
-    if (el.type === 'email' && val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) valid = false;
-
-    // Tel – allow +, digits, spaces, dashes, parens
-    if (el.type === 'tel' && val && !/^\+?[\d\s\-\(\)]{7,20}$/.test(val)) valid = false;
-
-    // Number range
-    if (el.type === 'number' || el.tagName === 'INPUT' && el.dataset.type === 'year') {
-      const n = parseInt(val, 10);
-      if (el.min && n < parseInt(el.min, 10)) valid = false;
-      if (el.max && n > parseInt(el.max, 10)) valid = false;
-    }
-
-    el.classList.toggle('is-invalid', !valid);
-    el.classList.toggle('is-valid', valid && val !== '');
-    return valid;
-  }
-
   function validateStep(idx) {
-    const names = stepFields[idx] || [];
     let ok = true;
-    names.forEach(name => {
+    (stepFields[idx] || []).forEach(name => {
       const el = form.querySelector(`[name="${name}"]`);
-      if (!validateField(el)) ok = false;
+      if (!el) return;
+      if (el.type === 'checkbox') { if (!el.checked) ok = false; return; }
+      const v = el.value.trim();
+      if (el.required && !v) { ok = false; return; }
+      if (el.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) ok = false;
+      if (el.type === 'tel' && v && !/^\+?[\d\s\-\(\)]{7,20}$/.test(v)) ok = false;
     });
-
-    // Password confirmation cross-check
     if (idx === 3) {
       const pw  = form.querySelector('[name="password"]');
       const cpw = form.querySelector('[name="confirm_password"]');
-      if (pw && cpw && pw.value !== cpw.value) {
-        cpw.classList.add('is-invalid');
-        cpw.classList.remove('is-valid');
-        ok = false;
-      }
-      const toggle = form.querySelector('[name="terms"]');
-      if (toggle && !toggle.checked) ok = false;
+      if (pw && cpw && pw.value !== cpw.value) ok = false;
     }
     return ok;
   }
 
-  // Next buttons
-  document.querySelectorAll('[data-next]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (validateStep(currentStep) && currentStep < panels.length - 1) {
-        showStep(currentStep + 1);
-      }
-    });
-  });
+  document.querySelectorAll('[data-next]').forEach(btn =>
+    btn.addEventListener('click', () => { if (current < panels.length - 1) showStep(current + 1); })
+  );
+  document.querySelectorAll('[data-prev]').forEach(btn =>
+    btn.addEventListener('click', () => { if (current > 0) showStep(current - 1); })
+  );
 
-  // Back buttons
-  document.querySelectorAll('[data-prev]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (currentStep > 0) showStep(currentStep - 1);
-    });
-  });
-
-  // Live validation on blur
-  form.querySelectorAll('.form-control').forEach(el => {
-    el.addEventListener('blur', () => validateField(el));
-    el.addEventListener('input', () => {
-      if (el.classList.contains('is-invalid')) validateField(el);
-    });
-  });
-
-  // Final submit validation
   form.addEventListener('submit', e => {
     let firstBad = -1;
-    stepFields.forEach((_, i) => {
-      if (!validateStep(i) && firstBad === -1) firstBad = i;
-    });
-    if (firstBad >= 0) {
-      e.preventDefault();
-      showStep(firstBad);
-    }
+    stepFields.forEach((_, i) => { if (!validateStep(i) && firstBad === -1) firstBad = i; });
+    if (firstBad >= 0) { e.preventDefault(); showStep(firstBad); }
   });
 })();
 
 // ── Password strength meter ───────────────────────────────
 (function initPasswordStrength() {
   const pw  = document.querySelector('[name="password"]');
-  const bar = document.querySelector('.password-strength__bar');
-  const lbl = document.querySelector('.strength-label');
+  const bar = document.getElementById('password-strength-bar');
+  const lbl = document.getElementById('strength-label');
   if (!pw || !bar) return;
-
-  const levels = [
-    { max: 0,  color: '#FF3B30', text: '' },
-    { max: 1,  color: '#FF3B30', text: 'Weak' },
-    { max: 2,  color: '#FF9500', text: 'Fair' },
-    { max: 3,  color: '#007AFF', text: 'Good' },
-    { max: 4,  color: '#34C759', text: 'Strong' },
-  ];
 
   pw.addEventListener('input', () => {
     const v = pw.value;
     let score = 0;
-    if (v.length >= 8) score++;
-    if (/[A-Z]/.test(v)) score++;
-    if (/[0-9]/.test(v)) score++;
-    if (/[^A-Za-z0-9]/.test(v)) score++;
+    if (v.length >= 8)           score++;
+    if (/[A-Z]/.test(v))         score++;
+    if (/[0-9]/.test(v))         score++;
+    if (/[^A-Za-z0-9]/.test(v))  score++;
 
-    const pct = (score / 4) * 100;
-    const lvl = levels[score];
-    bar.style.width = pct + '%';
-    bar.style.background = lvl.color;
-    if (lbl) { lbl.textContent = lvl.text; lbl.style.color = lvl.color; }
-  });
-})();
-
-// ── iOS toggle (checkbox) clicks ─────────────────────────
-document.querySelectorAll('.toggle-track').forEach(track => {
-  track.addEventListener('click', () => {
-    const input = track.previousElementSibling;
-    if (input && input.type === 'checkbox') {
-      input.checked = !input.checked;
-      input.dispatchEvent(new Event('change'));
-    }
-  });
-});
-
-// ── Admin table – column sort arrows ─────────────────────
-(function initSortArrows() {
-  const headers = document.querySelectorAll('.data-table th[data-sort]');
-  headers.forEach(th => {
-    const col = th.dataset.sort;
-    const url = new URL(window.location.href);
-    const cur = url.searchParams.get('sort');
-    const ord = url.searchParams.get('order') || 'desc';
-    if (cur === col) {
-      th.querySelector('a').innerHTML += ord === 'asc' ? ' ↑' : ' ↓';
-    }
-  });
-})();
-
-// ── Profile completion ring animation ────────────────────
-(function initProgressRing() {
-  const fill = document.querySelector('.progress-ring__fill');
-  if (!fill) return;
-  const pct = parseInt(fill.dataset.pct, 10) || 0;
-  const r   = parseFloat(fill.getAttribute('r')) || 40;
-  const circ = 2 * Math.PI * r;
-  fill.style.strokeDasharray  = circ;
-  fill.style.strokeDashoffset = circ;
-  requestAnimationFrame(() => {
-    fill.style.strokeDashoffset = circ * (1 - pct / 100);
+    const colors = ['', '#ba1a1a', '#f97316', '#2559bf', '#2c694e'];
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    bar.style.width      = (score / 4 * 100) + '%';
+    bar.style.background = colors[score] || '';
+    if (lbl) { lbl.textContent = labels[score]; lbl.style.color = colors[score]; }
   });
 })();

@@ -1,10 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Forbidden – Student Hub{% endblock %}
+{% block body_class %}{% endblock %}
 {% block content %}
-<div class="error-container">
-  <div class="error-code">403</div>
-  <h1 class="error-title">Access denied</h1>
-  <p class="error-desc">You don't have permission to view this page. Please sign in with the correct account.</p>
-  <a href="{{ url_for('index') }}" class="btn btn--primary">Go Home →</a>
+<div class="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center px-margin-mobile text-center">
+  <span class="material-symbols-outlined text-[80px] text-outline mb-lg">lock</span>
+  <h1 class="text-h1 font-h1 text-primary mb-xs">403</h1>
+  <h2 class="text-h3 font-h3 text-on-surface mb-md">Access denied</h2>
+  <p class="text-body-md font-body-md text-on-surface-variant max-w-xs mb-xl">You don't have permission to view this page.</p>
+  <a href="{{ url_for('index') }}" class="h-[52px] px-xl bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center gap-xs">
+    Go Home <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+  </a>
 </div>
 {% endblock %}

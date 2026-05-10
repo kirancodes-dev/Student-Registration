@@ -1,49 +1,84 @@
 {% extends "base.html" %}
-{% block title %}Student Hub – Register Today{% endblock %}
+{% block title %}Student Hub – Start Your Application{% endblock %}
+{% block body_class %}{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero">
-  <div class="hero__badge">Applications Open · Fall 2026</div>
-  <h1 class="hero__title">Your academic journey starts here.</h1>
-  <p class="hero__sub">Register in minutes, manage your enrollment, and stay on track – all in one place.</p>
-  <div class="hero__actions">
-    <a href="{{ url_for('register') }}" class="btn btn--primary">Start Application →</a>
-    <a href="{{ url_for('login') }}" class="btn btn--secondary">Sign In</a>
+<!-- Hero -->
+<section class="flex flex-col items-center text-center px-margin-mobile pt-xl pb-lg">
+  <div class="inline-flex items-center gap-xs px-md py-xs bg-primary-fixed text-primary rounded-full text-label-md font-label-md mb-lg">
+    <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
+    Applications Open · Fall 2026
+  </div>
+  <h1 class="text-h1 font-h1 text-primary max-w-sm mb-md">Your academic journey starts here.</h1>
+  <p class="text-body-lg font-body-lg text-on-surface-variant max-w-xs mb-xl">Register in minutes, manage your enrollment, and stay on track — all in one place.</p>
+  <div class="flex gap-sm flex-wrap justify-center">
+    <a href="{{ url_for('register') }}" class="h-[52px] px-xl bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-[0_4px_14px_rgba(0,49,126,0.3)] hover:shadow-[0_6px_20px_rgba(0,49,126,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-xs">
+      Start Application
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </a>
+    <a href="{{ url_for('login') }}" class="h-[52px] px-xl glass-card text-primary rounded-xl font-label-md text-label-md hover:bg-surface-container-high/50 transition-all flex items-center gap-xs">
+      Sign In
+    </a>
   </div>
 </section>
 
-<!-- Feature Cards -->
-<section class="features" aria-label="Key features">
-  <div class="feature-card">
-    <div class="feature-card__icon">⚡️</div>
-    <h3 class="feature-card__title">Fast &amp; Simple</h3>
-    <p class="feature-card__desc">Four-step registration that takes under three minutes. No paperwork, no waiting.</p>
+<!-- Stats strip -->
+<div class="px-margin-mobile mb-lg flex gap-sm overflow-x-auto no-scrollbar">
+  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
+    <div class="text-h2 font-h2 text-primary">20+</div>
+    <div class="text-caption font-caption text-on-surface-variant">Programs</div>
   </div>
-  <div class="feature-card">
-    <div class="feature-card__icon">🔒</div>
-    <h3 class="feature-card__title">Secure by Default</h3>
-    <p class="feature-card__desc">bcrypt password hashing, CSRF protection, and rate limiting keep your account safe.</p>
+  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
+    <div class="text-h2 font-h2 text-secondary">3 min</div>
+    <div class="text-caption font-caption text-on-surface-variant">To Register</div>
   </div>
-  <div class="feature-card">
-    <div class="feature-card__icon">📱</div>
-    <h3 class="feature-card__title">Mobile-First Design</h3>
-    <p class="feature-card__desc">Looks great on every device – phone, tablet, or desktop – with smooth animations.</p>
+  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
+    <div class="text-h2 font-h2 text-primary">100%</div>
+    <div class="text-caption font-caption text-on-surface-variant">Online</div>
   </div>
-  <div class="feature-card">
-    <div class="feature-card__icon">🎯</div>
-    <h3 class="feature-card__title">Personal Dashboard</h3>
-    <p class="feature-card__desc">Track profile completion, view important deadlines, and manage your information anytime.</p>
+</div>
+
+<!-- Feature grid -->
+<section class="px-margin-mobile grid grid-cols-2 gap-md pb-xl">
+  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
+    <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary">bolt</span>
+    </div>
+    <h3 class="text-h3 font-h3">Fast &amp; Simple</h3>
+    <p class="text-caption font-caption text-on-surface-variant">Four-step registration. No paperwork.</p>
   </div>
-  <div class="feature-card">
-    <div class="feature-card__icon">🎓</div>
-    <h3 class="feature-card__title">20+ Programs</h3>
-    <p class="feature-card__desc">From Computer Science to Nursing – choose the program that fits your ambitions.</p>
+  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
+    <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
+      <span class="material-symbols-outlined text-secondary">lock</span>
+    </div>
+    <h3 class="text-h3 font-h3">Secure</h3>
+    <p class="text-caption font-caption text-on-surface-variant">bcrypt passwords, CSRF protection.</p>
   </div>
-  <div class="feature-card">
-    <div class="feature-card__icon">✅</div>
-    <h3 class="feature-card__title">Instant Confirmation</h3>
-    <p class="feature-card__desc">Get your unique student ID the moment you submit. No delays, no callbacks.</p>
+  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
+    <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
+      <span class="material-symbols-outlined text-primary">smartphone</span>
+    </div>
+    <h3 class="text-h3 font-h3">Mobile-First</h3>
+    <p class="text-caption font-caption text-on-surface-variant">Works on any screen size.</p>
+  </div>
+  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
+    <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
+      <span class="material-symbols-outlined text-secondary">verified</span>
+    </div>
+    <h3 class="text-h3 font-h3">Instant ID</h3>
+    <p class="text-caption font-caption text-on-surface-variant">Get your student ID immediately.</p>
+  </div>
+
+  <!-- CTA card – full width -->
+  <div class="col-span-2 bg-primary rounded-xl p-lg flex items-center justify-between overflow-hidden relative">
+    <div class="absolute right-0 top-0 w-32 h-32 rounded-full bg-white/5 -translate-y-8 translate-x-8"></div>
+    <div>
+      <h3 class="text-h3 font-h3 text-on-primary">Admin Portal</h3>
+      <p class="text-caption font-caption text-on-primary/70 mt-xs">Manage students &amp; enrolments</p>
+    </div>
+    <a href="{{ url_for('admin_login') }}" class="flex items-center gap-xs h-10 px-md bg-white/15 text-on-primary rounded-xl text-label-md font-label-md hover:bg-white/25 transition-colors shrink-0">
+      Access <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+    </a>
   </div>
 </section>
 {% endblock %}

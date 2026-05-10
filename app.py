@@ -70,6 +70,13 @@ def create_app():
     def index():
         return render_template('index.html')
 
+    @app.route('/courses')
+    @login_required
+    def courses():
+        if isinstance(current_user, Admin):
+            return redirect(url_for('admin_dashboard'))
+        return render_template('courses.html')
+
     # -----------------------------------------------------------------------
     # Registration
     # -----------------------------------------------------------------------

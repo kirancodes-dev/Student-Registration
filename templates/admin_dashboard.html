@@ -1,93 +1,88 @@
 {% extends "base.html" %}
 {% block title %}Admin Dashboard – Student Hub{% endblock %}
+{% block body_class %}{% endblock %}
+{% block main_class %}{% endblock %}
 
 {% block content %}
-<div class="admin-container">
-  <div class="admin-header">
-    <div>
-      <h1>🛡️ Admin Dashboard</h1>
-      <p class="text-muted" style="font-size:13px; margin-top:2px;">Manage registered students · {{ now.strftime('%B %-d, %Y') }}</p>
-    </div>
+<div class="px-margin-mobile max-w-5xl mx-auto pt-lg pb-xl">
 
-    <form method="GET" action="{{ url_for('admin_dashboard') }}" role="search" style="display:flex; gap:8px; align-items:center;">
-      <div class="search-bar">
-        <input class="search-input" type="search" name="q" value="{{ search }}"
-               placeholder="Search name, email, ID…" aria-label="Search students" />
+  <!-- Header -->
+  <div class="flex flex-wrap items-center justify-between gap-md mb-lg">
+    <div>
+      <h1 class="text-h2 font-h2 text-on-surface flex items-center gap-sm">
+        <span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+        Admin Dashboard
+      </h1>
+      <p class="text-caption font-caption text-on-surface-variant mt-xs">{{ now.strftime('%B %-d, %Y') }}</p>
+    </div>
+    <form method="GET" action="{{ url_for('admin_dashboard') }}" class="flex gap-sm items-center">
+      <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
+        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
+        <input class="bg-transparent border-none focus:ring-0 text-body-md placeholder:text-on-surface-variant/50 py-sm w-48"
+               type="search" name="q" value="{{ search }}" placeholder="Search students…"/>
       </div>
-      <button type="submit" class="btn btn--primary btn--sm">Search</button>
+      <button type="submit" class="h-10 px-md bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:shadow-md transition-shadow">
+        Search
+      </button>
       {% if search %}
-        <a href="{{ url_for('admin_dashboard') }}" class="btn btn--secondary btn--sm">Clear</a>
+      <a href="{{ url_for('admin_dashboard') }}" class="h-10 px-md glass-card text-on-surface-variant rounded-xl font-label-md text-label-md hover:bg-surface-container-high/50 transition-colors flex items-center">
+        Clear
+      </a>
       {% endif %}
     </form>
-
-    <a href="{{ url_for('logout') }}" class="btn btn--secondary btn--sm">Sign Out</a>
   </div>
 
-  <!-- Stats strip -->
-  <div class="stats-strip">
-    <div class="stat-pill">
-      <div class="stat-pill__label">Total Students</div>
-      <div class="stat-pill__value">{{ total }}</div>
+  <!-- Stats -->
+  <div class="flex gap-md mb-lg overflow-x-auto no-scrollbar">
+    {% for label, value, color in [
+      ('Total Students', total, 'primary'),
+      ('Showing', students|length, 'secondary'),
+      ('Full-time', students|selectattr('enrollment_type','eq','full_time')|list|length, 'primary'),
+      ('Part-time', students|selectattr('enrollment_type','eq','part_time')|list|length, 'secondary'),
+    ] %}
+    <div class="glass-card rounded-xl px-lg py-md shadow-sm shrink-0 flex-1 min-w-[110px]">
+      <p class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">{{ label }}</p>
+      <p class="text-h2 font-h2 text-{{ color }} mt-xs">{{ value }}</p>
     </div>
-    <div class="stat-pill">
-      <div class="stat-pill__label">Showing</div>
-      <div class="stat-pill__value">{{ students|length }}</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill__label">Full-time</div>
-      <div class="stat-pill__value">{{ students|selectattr('enrollment_type','eq','full_time')|list|length }}</div>
-    </div>
-    <div class="stat-pill">
-      <div class="stat-pill__label">Part-time</div>
-      <div class="stat-pill__value">{{ students|selectattr('enrollment_type','eq','part_time')|list|length }}</div>
-    </div>
+    {% endfor %}
   </div>
 
   {% if students %}
-  <div class="table-wrapper">
-    <table class="data-table" aria-label="Student registrations">
+  <!-- Table (scrollable on mobile) -->
+  <div class="glass-card rounded-xl shadow-sm overflow-auto">
+    <table class="w-full min-w-[640px]">
       <thead>
-        <tr>
-          <th data-sort="student_id">
-            <a href="{{ url_for('admin_dashboard', q=search, sort='student_id', order='asc' if sort=='student_id' and order=='desc' else 'desc') }}">
-              Student ID
+        <tr class="border-b border-outline-variant/20">
+          {% for col, label in [('student_id','Student ID'),('last_name','Name'),('email','Email'),('major','Major'),('enrollment_type','Type'),('registration_date','Registered')] %}
+          <th class="px-md py-sm text-left text-caption font-caption text-on-surface-variant uppercase tracking-wider bg-surface-container-low">
+            <a href="{{ url_for('admin_dashboard', q=search, sort=col, order='asc' if sort==col and order=='desc' else 'desc') }}"
+               class="flex items-center gap-xs hover:text-primary transition-colors">
+              {{ label }}
+              {% if sort == col %}<span class="material-symbols-outlined text-[14px]">{{ 'arrow_upward' if order == 'asc' else 'arrow_downward' }}</span>{% endif %}
             </a>
           </th>
-          <th data-sort="last_name">
-            <a href="{{ url_for('admin_dashboard', q=search, sort='last_name', order='asc' if sort=='last_name' and order=='desc' else 'desc') }}">
-              Name
-            </a>
-          </th>
-          <th data-sort="email">
-            <a href="{{ url_for('admin_dashboard', q=search, sort='email', order='asc' if sort=='email' and order=='desc' else 'desc') }}">
-              Email
-            </a>
-          </th>
-          <th>Major</th>
-          <th>Enrollment</th>
-          <th data-sort="registration_date">
-            <a href="{{ url_for('admin_dashboard', q=search, sort='registration_date', order='asc' if sort=='registration_date' and order=='desc' else 'desc') }}">
-              Registered
-            </a>
-          </th>
+          {% endfor %}
         </tr>
       </thead>
       <tbody>
         {% for s in students %}
-        <tr>
-          <td><span class="student-id-badge">{{ s.student_id }}</span></td>
-          <td>
-            <strong>{{ s.full_name }}</strong>
-            <br><small style="color:var(--gray-5);">{{ s.gender.replace('_',' ').title() }}</small>
+        <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-surface-container/50 transition-colors">
+          <td class="px-md py-sm">
+            <span class="text-caption font-caption font-mono bg-primary-fixed text-primary px-xs py-0.5 rounded">{{ s.student_id }}</span>
           </td>
-          <td style="color:var(--gray-4)">{{ s.email }}</td>
-          <td>{{ s.major.replace('_',' ').title() }}</td>
-          <td>
-            <span class="enrollment-badge enrollment-badge--{{ 'full' if s.enrollment_type == 'full_time' else 'part' }}">
+          <td class="px-md py-sm">
+            <p class="text-label-md font-label-md text-on-surface">{{ s.full_name }}</p>
+            <p class="text-caption font-caption text-on-surface-variant">{{ s.gender.replace('_',' ').title() }}</p>
+          </td>
+          <td class="px-md py-sm text-body-md font-body-md text-on-surface-variant">{{ s.email }}</td>
+          <td class="px-md py-sm text-body-md font-body-md">{{ s.major.replace('_',' ').title() }}</td>
+          <td class="px-md py-sm">
+            <span class="text-caption font-caption font-bold px-sm py-0.5 rounded-full
+              {% if s.enrollment_type == 'full_time' %}bg-secondary-container text-on-secondary-container{% else %}bg-tertiary-fixed text-tertiary{% endif %}">
               {{ s.enrollment_type.replace('_','-').title() }}
             </span>
           </td>
-          <td style="color:var(--gray-5); white-space:nowrap;">
+          <td class="px-md py-sm text-caption font-caption text-on-surface-variant whitespace-nowrap">
             {{ s.registration_date.strftime('%b %-d, %Y') }}
           </td>
         </tr>
@@ -97,17 +92,14 @@
   </div>
 
   {% else %}
-  <div style="text-align:center; padding:80px 20px; color:var(--gray-5);">
-    <div style="font-size:48px; margin-bottom:16px;">🔍</div>
-    <h3 style="font-size:18px; font-weight:700; color:var(--gray-3); margin-bottom:8px;">No students found</h3>
-    <p style="font-size:14px;">
-      {% if search %}
-        No results for "<strong>{{ search }}</strong>". Try a different search.
-      {% else %}
-        No students have registered yet.
-      {% endif %}
+  <div class="text-center py-[80px]">
+    <span class="material-symbols-outlined text-[64px] text-outline">search_off</span>
+    <h3 class="text-h3 font-h3 text-on-surface mt-md mb-xs">No students found</h3>
+    <p class="text-body-md font-body-md text-on-surface-variant">
+      {% if search %}No results for "<strong>{{ search }}</strong>".{% else %}No students have registered yet.{% endif %}
     </p>
   </div>
   {% endif %}
+
 </div>
 {% endblock %}

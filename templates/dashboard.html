@@ -2,138 +2,153 @@
 {% block title %}Dashboard – Student Hub{% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
-  <div class="dashboard-header">
-    <h1 class="dashboard-header__greeting">Good {{ 'morning' if now.hour < 12 else ('afternoon' if now.hour < 17 else 'evening') }}, {{ student.first_name }} 👋</h1>
-    <p class="dashboard-header__sub">{{ now.strftime('%A, %B %-d, %Y') }} · Student ID: <strong>{{ student.student_id }}</strong></p>
-  </div>
+<div class="px-margin-mobile pt-lg space-y-lg pb-lg">
 
-  <!-- Profile completion ring -->
-  <div class="progress-ring-container">
-    <div class="progress-ring" aria-label="Profile {{ student.profile_completion }}% complete">
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle class="progress-ring__bg" cx="50" cy="50" r="40" />
-        <circle class="progress-ring__fill" cx="50" cy="50" r="40"
-                data-pct="{{ student.profile_completion }}" />
-      </svg>
-      <div class="progress-ring__text">
-        <span class="progress-ring__pct">{{ student.profile_completion }}%</span>
-        <span class="progress-ring__label">Complete</span>
+  <!-- Welcome -->
+  <section class="space-y-base">
+    <h2 class="text-h1 font-h1 text-primary">Welcome, {{ student.first_name }}!</h2>
+    <p class="text-body-md font-body-md text-on-surface-variant">Your registration for {{ now.strftime('%B %Y') }} is currently in progress.</p>
+  </section>
+
+  <!-- Registration Progress Card -->
+  <section class="glass-card rounded-xl p-md shadow-[0_4px_12px_rgba(26,28,30,0.08)] overflow-hidden relative">
+    <!-- Progress bar at top -->
+    <div class="absolute top-0 left-0 w-full h-1 bg-surface-container">
+      <div class="h-full bg-secondary rounded-r-full transition-all duration-700" style="width: {{ student.profile_completion }}%"></div>
+    </div>
+    <div class="flex justify-between items-center mb-md mt-xs">
+      <div class="space-y-base">
+        <span class="text-label-md font-label-md text-secondary">Registration Progress</span>
+        <h3 class="text-h2 font-h2">{{ student.profile_completion }}% complete</h3>
+      </div>
+      <div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center text-on-secondary-container">
+        <span class="material-symbols-outlined">pending_actions</span>
       </div>
     </div>
-    <div class="progress-ring-info">
-      <h3>Profile completion</h3>
-      <p>
-        {% if student.profile_completion == 100 %}
-          Your profile is complete – you're all set!
-        {% else %}
-          Complete your profile to improve your application.
-        {% endif %}
-      </p>
-      {% if student.profile_completion < 100 %}
-        <a href="{{ url_for('profile') }}" class="btn btn--secondary btn--sm" style="margin-top:12px;">Update Profile</a>
-      {% endif %}
-    </div>
-  </div>
-
-  <!-- Quick action cards -->
-  <div class="dashboard-grid">
-    <a href="{{ url_for('profile') }}" class="dash-card dash-card--blue">
-      <div class="dash-card__icon">👤</div>
-      <div class="dash-card__title">My Profile</div>
-      <div class="dash-card__desc">View &amp; update your personal details.</div>
-    </a>
-    <a href="#" class="dash-card dash-card--green">
-      <div class="dash-card__icon">📚</div>
-      <div class="dash-card__title">Course Catalog</div>
-      <div class="dash-card__desc">Browse available courses for your major.</div>
-    </a>
-    <a href="#" class="dash-card dash-card--orange">
-      <div class="dash-card__icon">📅</div>
-      <div class="dash-card__title">Schedule</div>
-      <div class="dash-card__desc">View your class timetable and events.</div>
-    </a>
-    <a href="#" class="dash-card dash-card--purple">
-      <div class="dash-card__icon">💬</div>
-      <div class="dash-card__title">Messages</div>
-      <div class="dash-card__desc">Check messages from faculty and staff.</div>
-    </a>
-    <a href="#" class="dash-card dash-card--red">
-      <div class="dash-card__icon">💰</div>
-      <div class="dash-card__title">Financial Aid</div>
-      <div class="dash-card__desc">Apply for scholarships and financial aid.</div>
-    </a>
-    <a href="{{ url_for('logout') }}" class="dash-card" style="border: 1.5px dashed var(--gray-8);">
-      <div class="dash-card__icon" style="background:var(--gray-10); font-size:24px;">👋</div>
-      <div class="dash-card__title">Sign Out</div>
-      <div class="dash-card__desc">End your current session safely.</div>
-    </a>
-  </div>
-
-  <!-- Upcoming deadlines -->
-  <div class="deadlines-card">
-    <h3>Upcoming Deadlines</h3>
-
-    <div class="deadline-item">
-      <div class="deadline-dot deadline-dot--red"></div>
-      <div>
-        <div class="deadline-item__title">Financial Aid Application</div>
-        <div class="deadline-item__date">June 1, 2026</div>
+    <div class="space-y-sm">
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">check_circle</span>
+        <span class="text-body-md font-body-md">Personal &amp; Address Information</span>
       </div>
-      <span class="deadline-item__badge badge--urgent">Urgent</span>
-    </div>
-
-    <div class="deadline-item">
-      <div class="deadline-dot deadline-dot--orange"></div>
-      <div>
-        <div class="deadline-item__title">Course Registration Deadline</div>
-        <div class="deadline-item__date">June 15, 2026</div>
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">check_circle</span>
+        <span class="text-body-md font-body-md">Academic Details Submitted</span>
       </div>
-      <span class="deadline-item__badge badge--soon">Soon</span>
-    </div>
-
-    <div class="deadline-item">
-      <div class="deadline-dot deadline-dot--blue"></div>
-      <div>
-        <div class="deadline-item__title">Fall Semester Orientation</div>
-        <div class="deadline-item__date">August 25, 2026</div>
+      <div class="flex items-center gap-sm">
+        <span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+        <span class="text-body-md font-body-md font-bold text-primary">Course Selection</span>
       </div>
-      <span class="deadline-item__badge badge--info">Upcoming</span>
-    </div>
-
-    <div class="deadline-item">
-      <div class="deadline-dot deadline-dot--blue"></div>
-      <div>
-        <div class="deadline-item__title">Classes Begin</div>
-        <div class="deadline-item__date">September 2, 2026</div>
+      <div class="flex items-center gap-sm opacity-50">
+        <span class="material-symbols-outlined text-outline">radio_button_unchecked</span>
+        <span class="text-body-md font-body-md">Final Tuition Payment</span>
       </div>
-      <span class="deadline-item__badge badge--info">Upcoming</span>
     </div>
-  </div>
+    <a href="{{ url_for('courses') }}" class="mt-lg flex w-full h-[48px] bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:shadow-lg transition-shadow active:scale-[0.98] items-center justify-center gap-xs">
+      Continue Registration
+      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+    </a>
+  </section>
 
-  <!-- Student info summary -->
-  <div class="deadlines-card">
-    <h3>Enrollment Summary</h3>
-    <div class="info-row">
-      <span class="info-row__label">Student ID</span>
-      <span class="info-row__value" style="font-family: monospace;">{{ student.student_id }}</span>
+  <!-- Quick Links bento -->
+  <section class="grid grid-cols-2 gap-md">
+    <a href="{{ url_for('courses') }}" class="glass-card rounded-xl p-md flex flex-col justify-between h-32 hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+      <span class="material-symbols-outlined text-primary text-h1 group-hover:scale-110 transition-transform">search</span>
+      <span class="text-label-md font-label-md text-on-surface">Search Courses</span>
+    </a>
+    <a href="#" class="glass-card rounded-xl p-md flex flex-col justify-between h-32 hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+      <span class="material-symbols-outlined text-primary text-h1 group-hover:scale-110 transition-transform">calendar_month</span>
+      <span class="text-label-md font-label-md text-on-surface">Weekly Schedule</span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="glass-card rounded-xl p-md flex flex-col justify-between h-32 hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+      <span class="material-symbols-outlined text-secondary text-h1 group-hover:scale-110 transition-transform">manage_accounts</span>
+      <span class="text-label-md font-label-md text-on-surface">My Profile</span>
+    </a>
+    <a href="#" class="glass-card rounded-xl p-md flex flex-col justify-between h-32 hover:bg-surface-container-high/50 transition-colors cursor-pointer group">
+      <span class="material-symbols-outlined text-primary text-h1 group-hover:scale-110 transition-transform">payments</span>
+      <span class="text-label-md font-label-md text-on-surface">Financial Aid</span>
+    </a>
+  </section>
+
+  <!-- Smart Recommendations -->
+  <section class="space-y-md">
+    <div class="flex items-center justify-between">
+      <h2 class="text-h3 font-h3 text-on-surface">Smart Registrar Picks</h2>
+      <span class="material-symbols-outlined text-primary">auto_awesome</span>
     </div>
-    <div class="info-row">
-      <span class="info-row__label">Program</span>
-      <span class="info-row__value">{{ student.major.replace('_', ' ').title() }}</span>
+    <div class="space-y-sm">
+      <div class="glass-card rounded-xl p-md flex gap-md items-center border-l-4 border-l-primary">
+        <div class="flex-1 space-y-base">
+          <div class="flex items-center gap-xs">
+            <span class="text-caption font-caption bg-primary-fixed text-on-primary-fixed px-xs py-0.5 rounded-full">Core Requirement</span>
+            <span class="text-caption font-caption text-on-surface-variant">4 Credits</span>
+          </div>
+          <h4 class="text-label-md font-label-md">CS402: Advanced Software Architecture</h4>
+          <p class="text-caption font-caption text-on-surface-variant">Based on your {{ student.major.replace('_',' ').title() }} concentration.</p>
+        </div>
+        <button class="h-10 w-10 flex items-center justify-center rounded-full text-primary hover:bg-primary-fixed/30 transition-colors">
+          <span class="material-symbols-outlined">add_circle</span>
+        </button>
+      </div>
+      <div class="glass-card rounded-xl p-md flex gap-md items-center border-l-4 border-l-secondary">
+        <div class="flex-1 space-y-base">
+          <div class="flex items-center gap-xs">
+            <span class="text-caption font-caption bg-secondary-fixed text-on-secondary-fixed px-xs py-0.5 rounded-full">Elective</span>
+            <span class="text-caption font-caption text-on-surface-variant">3 Credits</span>
+          </div>
+          <h4 class="text-label-md font-label-md">HU210: Digital Ethics &amp; Society</h4>
+          <p class="text-caption font-caption text-on-surface-variant">Fits your schedule and breadth requirements.</p>
+        </div>
+        <button class="h-10 w-10 flex items-center justify-center rounded-full text-primary hover:bg-primary-fixed/30 transition-colors">
+          <span class="material-symbols-outlined">add_circle</span>
+        </button>
+      </div>
     </div>
-    <div class="info-row">
-      <span class="info-row__label">Enrollment Type</span>
-      <span class="info-row__value">{{ student.enrollment_type.replace('_', '-').title() }}</span>
+  </section>
+
+  <!-- Upcoming Deadlines -->
+  <section class="glass-card rounded-xl overflow-hidden shadow-sm">
+    <div class="h-24 bg-primary relative overflow-hidden">
+      <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+      <div class="absolute bottom-0 left-0 p-md">
+        <span class="text-on-primary text-caption font-caption uppercase tracking-wider">Registration Deadline</span>
+        <h3 class="text-on-primary text-h2 font-h2">August 15, 2026</h3>
+      </div>
     </div>
-    <div class="info-row">
-      <span class="info-row__label">Email</span>
-      <span class="info-row__value">{{ student.email }}</span>
+    <div class="p-md space-y-sm">
+      {% set deadlines = [
+        ('Financial Aid Application', 'June 1, 2026', 'error', 'Urgent'),
+        ('Course Registration Deadline', 'June 15, 2026', 'tertiary', 'Soon'),
+        ('Fall Semester Orientation', 'Aug 25, 2026', 'primary', 'Upcoming'),
+      ] %}
+      {% for title, date, color, badge in deadlines %}
+      <div class="flex items-center gap-md py-sm border-b border-outline-variant/20 last:border-0 last:pb-0">
+        <div class="w-2.5 h-2.5 rounded-full bg-{{ color }} shrink-0"></div>
+        <div class="flex-1">
+          <p class="text-label-md font-label-md">{{ title }}</p>
+          <p class="text-caption font-caption text-on-surface-variant">{{ date }}</p>
+        </div>
+        <span class="text-caption font-caption px-sm py-0.5 rounded-full bg-{{ color }}/10 text-{{ color }}">{{ badge }}</span>
+      </div>
+      {% endfor %}
     </div>
-    <div class="info-row">
-      <span class="info-row__label">Registered On</span>
-      <span class="info-row__value">{{ student.registration_date.strftime('%B %-d, %Y') }}</span>
+  </section>
+
+  <!-- Enrolment summary -->
+  <section class="glass-card rounded-xl p-md shadow-sm space-y-sm">
+    <h3 class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider mb-sm">Enrolment Summary</h3>
+    {% for label, value in [
+      ('Student ID', student.student_id),
+      ('Program', student.major.replace('_',' ').title()),
+      ('Enrollment', student.enrollment_type.replace('_','-').title()),
+      ('Email', student.email),
+      ('Registered', student.registration_date.strftime('%B %-d, %Y')),
+    ] %}
+    <div class="flex justify-between items-center py-xs border-b border-outline-variant/20 last:border-0">
+      <span class="text-caption font-caption text-on-surface-variant">{{ label }}</span>
+      <span class="text-label-md font-label-md {% if label == 'Student ID' %}text-primary font-mono{% endif %}">{{ value }}</span>
     </div>
-  </div>
+    {% endfor %}
+  </section>
+
 </div>
 {% endblock %}

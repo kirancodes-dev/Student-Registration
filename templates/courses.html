@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Course Discovery – Student Hub{% endblock %}
+
+{% block content %}
+<div class="px-margin-mobile max-w-4xl mx-auto pt-lg pb-lg">
+
+  <!-- Header -->
+  <section class="mb-md">
+    <h2 class="text-h2 font-h2 text-on-surface mb-md">Course Discovery</h2>
+    <!-- Search Bar -->
+    <div class="glass-card rounded-xl px-md py-xs flex items-center gap-sm ring-1 ring-outline-variant/20 mb-md focus-within:ring-2 focus-within:ring-primary transition-all shadow-sm">
+      <span class="material-symbols-outlined text-on-surface-variant">search</span>
+      <input class="bg-transparent border-none focus:ring-0 w-full text-body-md placeholder:text-on-surface-variant/50 py-sm"
+             placeholder="Search by name, code, or professor..." type="text" id="course-search"/>
+      <span class="material-symbols-outlined text-on-surface-variant cursor-pointer">tune</span>
+    </div>
+    <!-- Filter chips -->
+    <div class="flex gap-xs overflow-x-auto pb-sm no-scrollbar">
+      <button class="flex items-center gap-xs px-md py-1.5 bg-primary text-on-primary rounded-full text-label-md font-label-md transition-all shrink-0">
+        All <span class="material-symbols-outlined text-[18px]">keyboard_arrow_down</span>
+      </button>
+      <button class="flex items-center gap-xs px-md py-1.5 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-label-md hover:bg-surface-container-highest transition-all shrink-0">
+        Computer Science
+      </button>
+      <button class="flex items-center gap-xs px-md py-1.5 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-label-md hover:bg-surface-container-highest transition-all shrink-0">
+        Mathematics
+      </button>
+      <button class="flex items-center gap-xs px-md py-1.5 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-label-md hover:bg-surface-container-highest transition-all shrink-0">
+        Sciences
+      </button>
+      <button class="flex items-center gap-xs px-md py-1.5 bg-surface-container-high text-on-surface-variant rounded-full text-label-md font-label-md hover:bg-surface-container-highest transition-all shrink-0">
+        Humanities
+      </button>
+    </div>
+  </section>
+
+  <!-- Course Cards -->
+  <section class="grid gap-md pb-xl" id="course-list">
+
+    {% set courses = [
+      {
+        'code': 'CS302', 'credits': 4, 'name': 'Advanced Algorithms',
+        'prereq': True, 'time': 'Mon, Wed 10:00 AM', 'prof': 'Dr. Sarah Chen',
+        'students': 26, 'tag': 'Core Requirement', 'tag_color': 'primary',
+      },
+      {
+        'code': 'CS402', 'credits': 4, 'name': 'Advanced Software Architecture',
+        'prereq': True, 'time': 'Tue, Thu 1:00 PM', 'prof': 'Prof. James Ko',
+        'students': 18, 'tag': 'Core Requirement', 'tag_color': 'primary',
+      },
+      {
+        'code': 'MAT215', 'credits': 3, 'name': 'Complex Variables',
+        'prereq': False, 'time': 'Tue, Thu 2:30 PM', 'prof': 'Dr. James Wilson',
+        'students': 0, 'tag': 'Elective', 'tag_color': 'secondary',
+      },
+      {
+        'code': 'PHY101', 'credits': 4, 'name': 'Introduction to Physics I',
+        'prereq': True, 'time': 'Mon, Wed, Fri 9:00 AM', 'prof': 'Prof. Linda Hayes',
+        'students': 104, 'tag': 'Lab Required', 'tag_color': 'secondary',
+      },
+      {
+        'code': 'HU210', 'credits': 3, 'name': 'Digital Ethics & Society',
+        'prereq': True, 'time': 'Fri 11:00 AM', 'prof': 'Dr. Aisha Patel',
+        'students': 34, 'tag': 'Elective', 'tag_color': 'secondary',
+      },
+      {
+        'code': 'BUS301', 'credits': 3, 'name': 'Data-Driven Decision Making',
+        'prereq': True, 'time': 'Mon, Wed 3:00 PM', 'prof': 'Prof. R. Torres',
+        'students': 42, 'tag': 'Cross-listed', 'tag_color': 'primary',
+      },
+    ] %}
+
+    {% for c in courses %}
+    <div class="glass-card rounded-xl p-md flex flex-col gap-sm shadow-sm border border-outline-variant/30 hover:shadow-md transition-shadow">
+      <div class="flex justify-between items-start">
+        <div>
+          <span class="text-caption font-caption text-primary uppercase tracking-wider">{{ c.code }} · {{ c.credits }} Credits</span>
+          <h3 class="text-h3 font-h3 text-on-surface mt-base">{{ c.name }}</h3>
+        </div>
+        {% if c.prereq %}
+        <div class="flex items-center gap-xs px-sm py-1 bg-secondary-container text-on-secondary-container rounded-full text-caption font-semibold shrink-0">
+          <span class="material-symbols-outlined text-[16px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">check_circle</span>
+          Met
+        </div>
+        {% else %}
+        <div class="flex items-center gap-xs px-sm py-1 bg-error-container text-on-error-container rounded-full text-caption font-semibold shrink-0">
+          <span class="material-symbols-outlined text-[16px]" style="font-variation-settings:'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24">warning</span>
+          Missing
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="flex flex-wrap gap-md text-on-surface-variant text-body-md py-xs">
+        <div class="flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[20px]">schedule</span>{{ c.time }}
+        </div>
+        <div class="flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[20px]">person</span>{{ c.prof }}
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-sm border-t border-outline-variant/20">
+        <div class="flex items-center gap-sm">
+          <span class="text-caption font-caption bg-{{ c.tag_color }}-fixed text-on-{{ c.tag_color }}-fixed px-xs py-0.5 rounded-full">{{ c.tag }}</span>
+          {% if c.students > 0 %}
+          <span class="text-caption font-caption text-on-surface-variant">{{ c.students }} enrolled</span>
+          {% else %}
+          <span class="text-caption font-caption text-error italic">Requires {{ c.code[:-3] }}01</span>
+          {% endif %}
+        </div>
+        <button class="px-lg h-10 bg-primary text-on-primary rounded-xl font-label-md text-label-md flex items-center gap-xs hover:shadow-md active:scale-[0.97] transition-all">
+          <span class="material-symbols-outlined text-[20px]">add</span>Add
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.getElementById('course-search').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#course-list > div').forEach(card => {
+      card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}
