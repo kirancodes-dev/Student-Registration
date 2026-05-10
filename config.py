@@ -1,4 +1,5 @@
 import os
+from urllib.parse import quote_plus
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -17,7 +18,7 @@ class Config:
             _db_port = os.environ.get('DB_PORT', '3306')
             _db_name = os.environ.get('DB_NAME', 'student_registration')
             _db_user = os.environ.get('DB_USER', 'root')
-            _db_url = f"mysql+pymysql://{_db_user}:{_db_password}@{_db_host}:{_db_port}/{_db_name}"
+            _db_url = f"mysql+pymysql://{_db_user}:{quote_plus(_db_password)}@{_db_host}:{_db_port}/{_db_name}"
         else:
             # SQLite fallback for local development (no MySQL needed)
             _db_url = "sqlite:///student_hub.db"

@@ -39,34 +39,76 @@
 
     {% set courses = [
       {
+        'code': 'CS101', 'credits': 4, 'name': 'Introduction to Programming',
+        'prereq': True, 'time': 'Mon, Wed, Fri 9:00 AM', 'prof': 'Dr. Sarah Chen',
+        'students': 120, 'tag': 'Foundation', 'tag_color': 'primary',
+        'dept': 'Computer Science',
+      },
+      {
         'code': 'CS302', 'credits': 4, 'name': 'Advanced Algorithms',
         'prereq': True, 'time': 'Mon, Wed 10:00 AM', 'prof': 'Dr. Sarah Chen',
         'students': 26, 'tag': 'Core Requirement', 'tag_color': 'primary',
+        'dept': 'Computer Science',
       },
       {
         'code': 'CS402', 'credits': 4, 'name': 'Advanced Software Architecture',
         'prereq': True, 'time': 'Tue, Thu 1:00 PM', 'prof': 'Prof. James Ko',
         'students': 18, 'tag': 'Core Requirement', 'tag_color': 'primary',
+        'dept': 'Computer Science',
       },
       {
-        'code': 'MAT215', 'credits': 3, 'name': 'Complex Variables',
+        'code': 'DS201', 'credits': 3, 'name': 'Machine Learning Fundamentals',
+        'prereq': True, 'time': 'Tue, Thu 10:30 AM', 'prof': 'Dr. Priya Nair',
+        'students': 55, 'tag': 'Core Requirement', 'tag_color': 'primary',
+        'dept': 'Data Science',
+      },
+      {
+        'code': 'DS310', 'credits': 3, 'name': 'Deep Learning & Neural Networks',
+        'prereq': True, 'time': 'Mon, Wed 2:00 PM', 'prof': 'Dr. Priya Nair',
+        'students': 31, 'tag': 'Advanced', 'tag_color': 'primary',
+        'dept': 'Data Science',
+      },
+      {
+        'code': 'CYB201', 'credits': 4, 'name': 'Network Security & Cryptography',
+        'prereq': True, 'time': 'Mon, Wed, Fri 11:00 AM', 'prof': 'Prof. Marcus Reid',
+        'students': 40, 'tag': 'Core Requirement', 'tag_color': 'primary',
+        'dept': 'Cybersecurity',
+      },
+      {
+        'code': 'MAT215', 'credits': 3, 'name': 'Complex Variables & Analysis',
         'prereq': False, 'time': 'Tue, Thu 2:30 PM', 'prof': 'Dr. James Wilson',
         'students': 0, 'tag': 'Elective', 'tag_color': 'secondary',
+        'dept': 'Mathematics',
+      },
+      {
+        'code': 'MAT310', 'credits': 3, 'name': 'Linear Algebra & Applications',
+        'prereq': True, 'time': 'Mon, Wed 8:30 AM', 'prof': 'Dr. James Wilson',
+        'students': 62, 'tag': 'Core Requirement', 'tag_color': 'primary',
+        'dept': 'Mathematics',
       },
       {
         'code': 'PHY101', 'credits': 4, 'name': 'Introduction to Physics I',
         'prereq': True, 'time': 'Mon, Wed, Fri 9:00 AM', 'prof': 'Prof. Linda Hayes',
         'students': 104, 'tag': 'Lab Required', 'tag_color': 'secondary',
-      },
-      {
-        'code': 'HU210', 'credits': 3, 'name': 'Digital Ethics & Society',
-        'prereq': True, 'time': 'Fri 11:00 AM', 'prof': 'Dr. Aisha Patel',
-        'students': 34, 'tag': 'Elective', 'tag_color': 'secondary',
+        'dept': 'Sciences',
       },
       {
         'code': 'BUS301', 'credits': 3, 'name': 'Data-Driven Decision Making',
         'prereq': True, 'time': 'Mon, Wed 3:00 PM', 'prof': 'Prof. R. Torres',
         'students': 42, 'tag': 'Cross-listed', 'tag_color': 'primary',
+        'dept': 'Business',
+      },
+      {
+        'code': 'NUR201', 'credits': 4, 'name': 'Clinical Nursing Practice I',
+        'prereq': True, 'time': 'Tue, Thu 8:00 AM', 'prof': 'Prof. Angela Moore',
+        'students': 38, 'tag': 'Lab Required', 'tag_color': 'secondary',
+        'dept': 'Nursing',
+      },
+      {
+        'code': 'HU210', 'credits': 3, 'name': 'Digital Ethics & Society',
+        'prereq': True, 'time': 'Fri 11:00 AM', 'prof': 'Dr. Aisha Patel',
+        'students': 34, 'tag': 'Elective', 'tag_color': 'secondary',
+        'dept': 'Humanities',
       },
     ] %}
 
