@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from flask import (
     Flask, render_template, redirect, url_for,
-    flash, request, session, abort
+    flash, request, session, abort, jsonify, g
 )
 from flask_login import (
     LoginManager, login_user, logout_user,
@@ -14,6 +14,10 @@ from flask_limiter.util import get_remote_address
 from config import Config
 from models import db, bcrypt, Student, Admin, generate_student_id
 from forms import RegistrationForm, LoginForm, AdminLoginForm, ProfileUpdateForm
+from security import init_security, get_session_config
+from auth import TokenManager, PasswordManager, token_required
+from validators import EmailValidator, PasswordValidator, InputSanitizer
+from audit import AuditLog, log_request_response
 
 # ---------------------------------------------------------------------------
 # App factory
@@ -22,6 +26,9 @@ from forms import RegistrationForm, LoginForm, AdminLoginForm, ProfileUpdateForm
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    
+    # Apply security session configuration
+    app.config.update(get_session_config())
 
     # Extensions
     db.init_app(app)
@@ -38,6 +45,9 @@ def create_app():
         default_limits=["200 per day", "50 per hour"],
         storage_uri="memory://",
     )
+    
+    # Initialize security features (headers, CORS, etc.)
+    init_security(app)
 
     # Logging
     logging.basicConfig(
@@ -45,6 +55,7 @@ def create_app():
         format='%(asctime)s [%(levelname)s] %(message)s'
     )
     logger = logging.getLogger(__name__)
+    audit_logger = AuditLog.get_logger()
 
     # -----------------------------------------------------------------------
     # User loader – handles both Student and Admin sessions
@@ -55,6 +66,16 @@ def create_app():
             admin_id = int(user_id.split('-')[1])
             return Admin.query.get(admin_id)
         return Student.query.get(int(user_id))
+    
+    # Request context setup for audit logging
+    @app.before_request
+    def before_request():
+        """Setup request context including user tracking."""
+        g.request_id = request.headers.get('X-Request-ID', str(__import__('uuid').uuid4()))
+        if current_user.is_authenticated:
+            g.user_id = current_user.id
+        else:
+            g.user_id = None
 
     # -----------------------------------------------------------------------
     # Context processors
@@ -89,38 +110,56 @@ def create_app():
         form = RegistrationForm()
 
         if form.validate_on_submit():
-            # Generate a unique student ID (retry if collision)
-            sid = generate_student_id()
-            while Student.query.filter_by(student_id=sid).first():
+            try:
+                # Generate a unique student ID (retry if collision)
                 sid = generate_student_id()
+                while Student.query.filter_by(student_id=sid).first():
+                    sid = generate_student_id()
 
-            student = Student(
-                student_id=sid,
-                first_name=form.first_name.data.strip(),
-                last_name=form.last_name.data.strip(),
-                dob=form.dob.data,
-                gender=form.gender.data,
-                email=form.email.data.lower().strip(),
-                phone=form.phone.data.strip(),
-                street=form.street.data.strip(),
-                city=form.city.data.strip(),
-                state=form.state.data.strip(),
-                zip_code=form.zip_code.data.strip(),
-                country=form.country.data.strip(),
-                high_school=form.high_school.data.strip(),
-                graduation_year=form.graduation_year.data,
-                major=form.major.data,
-                enrollment_type=form.enrollment_type.data,
-            )
-            student.set_password(form.password.data)
+                student = Student(
+                    student_id=sid,
+                    first_name=form.first_name.data.strip(),
+                    last_name=form.last_name.data.strip(),
+                    dob=form.dob.data,
+                    gender=form.gender.data,
+                    email=form.email.data.lower().strip(),
+                    phone=form.phone.data.strip(),
+                    street=form.street.data.strip(),
+                    city=form.city.data.strip(),
+                    state=form.state.data.strip(),
+                    zip_code=form.zip_code.data.strip(),
+                    country=form.country.data.strip(),
+                    high_school=form.high_school.data.strip(),
+                    graduation_year=form.graduation_year.data,
+                    major=form.major.data,
+                    enrollment_type=form.enrollment_type.data,
+                )
+                student.set_password(form.password.data)
 
-            db.session.add(student)
-            db.session.commit()
+                db.session.add(student)
+                db.session.commit()
 
-            logger.info(f"New student registered: {student.email} | ID: {student.student_id}")
-            session['new_student_id'] = student.student_id
-            session['new_student_name'] = student.first_name
-            return redirect(url_for('confirmation'))
+                logger.info(f"New student registered: {student.email} | ID: {student.student_id}")
+                audit_logger.log_data_change(
+                    'CREATE',
+                    'STUDENT',
+                    str(student.id),
+                    'SYSTEM',
+                    new_values={'email': student.email, 'student_id': student.student_id}
+                )
+                
+                session['new_student_id'] = student.student_id
+                session['new_student_name'] = student.first_name
+                return redirect(url_for('confirmation'))
+            except Exception as e:
+                logger.error(f"Registration error: {str(e)}")
+                audit_logger.log_event(
+                    'REGISTRATION_ERROR',
+                    f'Failed to register student: {str(e)}',
+                    severity='ERROR'
+                )
+                flash('An error occurred during registration. Please try again.', 'error')
+                db.session.rollback()
 
         # Collect field-level errors to pass to JS multi-step form
         step_errors = {1: False, 2: False, 3: False, 4: False}
@@ -168,8 +207,21 @@ def create_app():
             if student and student.check_password(form.password.data):
                 login_user(student, remember=form.remember_me.data)
                 logger.info(f"Student login: {student.email}")
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    str(student.id),
+                    True,
+                    {'email': student.email}
+                )
                 next_page = request.args.get('next')
                 return redirect(next_page or url_for('dashboard'))
+            
+            audit_logger.log_auth_event(
+                'LOGIN',
+                form.email.data.lower().strip(),
+                False,
+                {'reason': 'Invalid credentials'}
+            )
             flash('Incorrect email or password. Please try again.', 'error')
             logger.warning(f"Failed login attempt for email: {form.email.data}")
 
@@ -179,9 +231,152 @@ def create_app():
     @login_required
     def logout():
         logger.info(f"User logout: {current_user.email}")
+        audit_logger.log_auth_event('LOGOUT', str(current_user.id), True)
         logout_user()
         flash('You have been signed out.', 'info')
         return redirect(url_for('index'))
+    
+    # -----------------------------------------------------------------------
+    # JWT API endpoints for authentication (v1)
+    # -----------------------------------------------------------------------
+    @app.route('/api/v1/auth/login', methods=['POST'])
+    @limiter.limit("20 per hour")
+    def api_login():
+        """
+        JWT authentication endpoint.
+        
+        Expected JSON body:
+        {
+            "email": "user@example.com",
+            "password": "SecurePassword123!"
+        }
+        
+        Returns JWT tokens in response.
+        """
+        try:
+            data = request.get_json()
+            
+            if not data:
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    'unknown',
+                    False,
+                    {'reason': 'No JSON body provided'}
+                )
+                return jsonify({'error': 'Request body is required'}), 400
+            
+            email = data.get('email', '').strip().lower()
+            password = data.get('password', '')
+            
+            # Validate inputs
+            if not email or not password:
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    email or 'unknown',
+                    False,
+                    {'reason': 'Missing email or password'}
+                )
+                return jsonify({'error': 'Email and password are required'}), 400
+            
+            # Validate email format
+            is_valid, error = EmailValidator.validate(email)
+            if not is_valid:
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    email,
+                    False,
+                    {'reason': 'Invalid email format'}
+                )
+                return jsonify({'error': error}), 400
+            
+            # Find student
+            student = Student.query.filter_by(email=email).first()
+            
+            if not student or not student.check_password(password):
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    email,
+                    False,
+                    {'reason': 'Invalid credentials'}
+                )
+                return jsonify({'error': 'Invalid email or password'}), 401
+            
+            # Generate JWT tokens
+            tokens = TokenManager.generate_tokens(
+                str(student.id),
+                student.email,
+                is_admin=False
+            )
+            
+            audit_logger.log_auth_event(
+                'LOGIN',
+                str(student.id),
+                True,
+                {'email': student.email}
+            )
+            
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': student.id,
+                    'email': student.email,
+                    'first_name': student.first_name,
+                },
+                'tokens': tokens,
+            }), 200
+            
+        except Exception as e:
+            logger.error(f"API login error: {str(e)}")
+            audit_logger.log_event(
+                'AUTH_ERROR',
+                f'Login API error: {str(e)}',
+                severity='ERROR'
+            )
+            return jsonify({'error': 'Internal server error'}), 500
+    
+    @app.route('/api/v1/auth/refresh', methods=['POST'])
+    @limiter.limit("20 per hour")
+    def api_refresh_token():
+        """
+        Refresh JWT access token using refresh token.
+        
+        Expected JSON body:
+        {
+            "refresh_token": "eyJ..."
+        }
+        """
+        try:
+            data = request.get_json()
+            
+            if not data or 'refresh_token' not in data:
+                return jsonify({'error': 'Refresh token is required'}), 400
+            
+            refresh_token = data.get('refresh_token')
+            new_tokens = TokenManager.refresh_token(refresh_token)
+            
+            if not new_tokens:
+                return jsonify({'error': 'Invalid or expired refresh token'}), 401
+            
+            return jsonify({
+                'success': True,
+                'tokens': new_tokens,
+            }), 200
+            
+        except Exception as e:
+            logger.error(f"Token refresh error: {str(e)}")
+            return jsonify({'error': 'Internal server error'}), 500
+    
+    @app.route('/api/v1/auth/logout', methods=['POST'])
+    @token_required
+    def api_logout():
+        """Logout via JWT (token becomes invalid after server-side revocation)."""
+        audit_logger.log_auth_event(
+            'LOGOUT',
+            request.user_id,
+            True,
+            {'method': 'api'}
+        )
+        return jsonify({'success': True, 'message': 'Logged out successfully'}), 200
 
     # -----------------------------------------------------------------------
     # Student dashboard & profile
@@ -235,7 +430,20 @@ def create_app():
             if admin and admin.check_password(form.password.data):
                 login_user(admin)
                 logger.info(f"Admin login: {admin.email}")
+                audit_logger.log_auth_event(
+                    'LOGIN',
+                    str(admin.id),
+                    True,
+                    {'email': admin.email, 'role': 'admin'}
+                )
                 return redirect(url_for('admin_dashboard'))
+            
+            audit_logger.log_auth_event(
+                'LOGIN',
+                form.email.data.lower().strip(),
+                False,
+                {'reason': 'Invalid admin credentials', 'role': 'admin'}
+            )
             flash('Invalid admin credentials.', 'error')
 
         return render_template('admin_login.html', form=form)
