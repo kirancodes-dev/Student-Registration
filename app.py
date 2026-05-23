@@ -484,6 +484,49 @@ def create_app():
         )
 
     # -----------------------------------------------------------------------
+    # API – live stats (public, read-only)
+    # -----------------------------------------------------------------------
+    @app.route('/api/stats')
+    def api_stats():
+        """Return live enrollment statistics as JSON for charts and counters."""
+        from sqlalchemy import func
+        total = Student.query.count()
+        full_time = Student.query.filter_by(enrollment_type='full_time').count()
+        part_time = Student.query.filter_by(enrollment_type='part_time').count()
+
+        major_rows = (
+            db.session.query(Student.major, func.count(Student.id).label('cnt'))
+            .group_by(Student.major)
+            .order_by(func.count(Student.id).desc())
+            .all()
+        )
+        majors = [
+            {'name': m.replace('_', ' ').title(), 'count': c}
+            for m, c in major_rows
+        ]
+
+        # Monthly registrations (last 6 months)
+        from datetime import datetime, timedelta
+        from sqlalchemy import extract
+        monthly = []
+        now = datetime.utcnow()
+        for i in range(5, -1, -1):
+            month_dt = now.replace(day=1) - timedelta(days=i * 30)
+            cnt = Student.query.filter(
+                extract('year',  Student.registration_date) == month_dt.year,
+                extract('month', Student.registration_date) == month_dt.month,
+            ).count()
+            monthly.append({'month': month_dt.strftime('%b'), 'count': cnt})
+
+        return jsonify({
+            'total': total,
+            'full_time': full_time,
+            'part_time': part_time,
+            'majors': majors,
+            'monthly': monthly,
+        })
+
+    # -----------------------------------------------------------------------
     # Error handlers
     # -----------------------------------------------------------------------
     @app.errorhandler(404)

@@ -1,16 +1,49 @@
 'use strict';
 
-// ── Flash auto-dismiss ───────────────────────────────────
-setTimeout(() => {
-  document.querySelectorAll('[data-flash]').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(-8px)';
-    el.style.transition = 'opacity 0.4s, transform 0.4s';
-    setTimeout(() => el.remove(), 400);
-  });
-}, 5000);
+// ── Dark Mode Toggle ─────────────────────────────────────────────
+(function initDarkMode() {
+  const toggle = document.getElementById('theme-toggle');
+  const icon   = document.getElementById('theme-icon');
+  if (!toggle) return;
 
-// ── Multi-step registration form ─────────────────────────
+  // Restore saved preference or respect system
+  const saved = localStorage.getItem('theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+  } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+  }
+  updateIcon();
+
+  toggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateIcon();
+  });
+
+  function updateIcon() {
+    if (!icon) return;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    icon.textContent = isDark ? 'light_mode' : 'dark_mode';
+    icon.style.transform = `rotate(${isDark ? '180' : '0'}deg)`;
+  }
+})();
+
+// ── Toast Flash Auto-dismiss ─────────────────────────────────────
+(function initToasts() {
+  setTimeout(() => {
+    document.querySelectorAll('[data-flash]').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
+      el.style.transition = 'opacity 0.4s, transform 0.4s';
+      setTimeout(() => el.remove(), 400);
+    });
+  }, 5000);
+})();
+
+// ── Multi-step registration form ─────────────────────────────────
 (function initMultiStep() {
   const panels = document.querySelectorAll('.form-panel');
   const dots   = document.querySelectorAll('.step-dot');
@@ -105,7 +138,7 @@ setTimeout(() => {
   });
 })();
 
-// ── Password strength meter ───────────────────────────────
+// ── Password strength meter ───────────────────────────────────────
 (function initPasswordStrength() {
   const pw  = document.querySelector('[name="password"]');
   const bar = document.getElementById('password-strength-bar');
@@ -126,4 +159,17 @@ setTimeout(() => {
     bar.style.background = colors[score] || '';
     if (lbl) { lbl.textContent = labels[score]; lbl.style.color = colors[score]; }
   });
+})();
+
+// ── Scroll-driven nav shadow ──────────────────────────────────────
+(function initNavScroll() {
+  const nav = document.getElementById('main-nav');
+  if (!nav) return;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 10) {
+      nav.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)';
+    } else {
+      nav.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+    }
+  }, { passive: true });
 })();

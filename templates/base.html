@@ -1,129 +1,73 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta name="description" content="Student Hub – Fast, secure online student registration system. Apply in minutes."/>
   <title>{% block title %}Student Hub{% endblock %}</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            "primary": "#00317e", "on-primary": "#ffffff",
-            "primary-container": "#0046ad", "on-primary-container": "#a5bdff",
-            "primary-fixed": "#dae2ff", "primary-fixed-dim": "#b2c5ff",
-            "on-primary-fixed": "#001847", "on-primary-fixed-variant": "#0040a0",
-            "secondary": "#2c694e", "on-secondary": "#ffffff",
-            "secondary-container": "#aeeecb", "on-secondary-container": "#316e52",
-            "secondary-fixed": "#b1f0ce", "secondary-fixed-dim": "#95d4b3",
-            "on-secondary-fixed": "#002114", "on-secondary-fixed-variant": "#0e5138",
-            "tertiary": "#493200", "on-tertiary": "#ffffff",
-            "tertiary-container": "#664700", "on-tertiary-container": "#f7b100",
-            "tertiary-fixed": "#ffdea9", "tertiary-fixed-dim": "#ffba27",
-            "on-tertiary-fixed": "#271900", "on-tertiary-fixed-variant": "#5e4100",
-            "error": "#ba1a1a", "on-error": "#ffffff",
-            "error-container": "#ffdad6", "on-error-container": "#93000a",
-            "background": "#faf8ff", "on-background": "#191b22",
-            "surface": "#faf8ff", "on-surface": "#191b22",
-            "surface-variant": "#e2e2eb", "on-surface-variant": "#434653",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-low": "#f3f3fc",
-            "surface-container": "#ededf6",
-            "surface-container-high": "#e7e7f1",
-            "surface-container-highest": "#e2e2eb",
-            "surface-dim": "#d9d9e2", "surface-bright": "#faf8ff",
-            "surface-tint": "#2559bf",
-            "outline": "#737784", "outline-variant": "#c3c6d5",
-            "inverse-surface": "#2e3037", "inverse-on-surface": "#f0f0f9",
-            "inverse-primary": "#b2c5ff",
-          },
-          borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
-          spacing: {
-            "xl": "32px", "touch-target-min": "44px", "base": "4px",
-            "md": "16px", "margin-mobile": "20px", "sm": "12px",
-            "lg": "24px", "xs": "8px", "gutter-mobile": "16px"
-          },
-          fontFamily: {
-            "body-lg": ["Public Sans"], "caption": ["Public Sans"],
-            "label-md": ["Public Sans"], "h1": ["Public Sans"],
-            "body-md": ["Public Sans"], "h2": ["Public Sans"], "h3": ["Public Sans"]
-          },
-          fontSize: {
-            "body-lg": ["18px", {"lineHeight": "26px", "fontWeight": "400"}],
-            "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
-            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
-            "h1": ["30px", {"lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-            "h2": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-            "h3": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    body { font-family: 'Public Sans', sans-serif; background-color: #faf8ff; min-height: max(884px, 100dvh); }
-    .glass-card {
-      background: rgba(255,255,255,0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(195,198,213,0.3);
-    }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    input, select, textarea { outline: none !important; box-shadow: none !important; }
-    .nav-active .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  </style>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Public+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+
+  <!-- Styles -->
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet"/>
   {% block head %}{% endblock %}
 </head>
-<body class="text-on-surface antialiased {% block body_class %}pb-[80px]{% endblock %}">
+<body class="{% block body_class %}page-body{% endblock %}">
 
-<!-- Top App Bar -->
-<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-[64px] bg-surface/70 backdrop-blur-xl border-b border-outline-variant/30 shadow-sm">
-  <div class="flex items-center gap-sm">
-    {% if current_user.is_authenticated and not (current_user.is_admin is defined and current_user.is_admin) %}
-      <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-h3 shrink-0">
-        {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
-      </div>
-    {% else %}
-      <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center shrink-0">
-        <span class="material-symbols-outlined text-primary">school</span>
-      </div>
-    {% endif %}
-    <span class="text-h3 font-h3 text-primary">Student Hub</span>
-  </div>
-  <div class="flex items-center gap-xs">
+<!-- Navigation -->
+<nav class="nav" id="main-nav" role="navigation" aria-label="Main navigation">
+  <a href="{{ url_for('index') }}" class="nav__brand" aria-label="Student Hub home">
+    <div class="nav__logo">
+      <span class="material-symbols-outlined" style="font-size:22px;font-variation-settings:'FILL' 1;">school</span>
+    </div>
+    <span class="nav__brand-text">Student Hub</span>
+  </a>
+
+  <div class="nav__actions">
+    <!-- Dark mode toggle -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <span class="material-symbols-outlined theme-toggle__icon" id="theme-icon">dark_mode</span>
+    </button>
+
     {% if current_user.is_authenticated %}
-      <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high/50 transition-colors">
-        <span class="material-symbols-outlined text-primary">notifications</span>
-      </button>
       {% if current_user.is_admin is defined and current_user.is_admin %}
-        <a href="{{ url_for('logout') }}" class="text-label-md font-label-md text-on-surface-variant px-sm py-xs hover:bg-surface-container rounded-xl transition-colors">Sign Out</a>
+        <div class="nav__user-pill">
+          <span class="material-symbols-outlined" style="font-size:16px;">admin_panel_settings</span>
+          <span>Admin</span>
+        </div>
+        <a href="{{ url_for('logout') }}" class="nav__sign-out" id="nav-signout">
+          <span class="material-symbols-outlined" style="font-size:16px;">logout</span>
+          Sign Out
+        </a>
+      {% else %}
+        <div class="nav__user-pill">
+          <div class="nav__avatar">{{ current_user.first_name[0] }}{{ current_user.last_name[0] }}</div>
+          <span>{{ current_user.first_name }}</span>
+        </div>
       {% endif %}
     {% else %}
-      <a href="{{ url_for('login') }}" class="text-label-md font-label-md text-primary px-md py-sm hover:bg-surface-container rounded-xl transition-colors">Sign In</a>
+      <a href="{{ url_for('login') }}" class="nav__link" id="nav-signin">Sign In</a>
+      <a href="{{ url_for('register') }}" class="nav__cta" id="nav-register">Apply Now</a>
     {% endif %}
   </div>
-</header>
+</nav>
 
-<!-- Flash messages -->
+<!-- Flash Messages (toast style) -->
 {% with messages = get_flashed_messages(with_categories=True) %}
   {% if messages %}
-    <div class="fixed top-[72px] left-0 right-0 z-40 px-margin-mobile space-y-xs" id="flash-container">
+    <div class="toast-container" id="toast-container" role="alert" aria-live="polite">
       {% for category, message in messages %}
-        <div class="glass-card rounded-xl px-md py-sm flex items-center gap-sm border-l-4
-          {% if category == 'success' %}border-l-secondary{% elif category == 'error' %}border-l-error{% else %}border-l-primary{% endif %}
-          shadow-sm" data-flash>
-          <span class="material-symbols-outlined text-[20px]
-            {% if category == 'success' %}text-secondary{% elif category == 'error' %}text-error{% else %}text-primary{% endif %}">
-            {{ 'check_circle' if category == 'success' else ('error' if category == 'error' else 'info') }}
+        <div class="toast toast--{{ category }}" data-flash>
+          <span class="material-symbols-outlined toast__icon">
+            {% if category == 'success' %}check_circle{% elif category == 'error' %}error{% else %}info{% endif %}
           </span>
-          <span class="text-body-md font-body-md text-on-surface">{{ message }}</span>
+          <span class="toast__msg">{{ message }}</span>
+          <button class="toast__close" onclick="this.parentElement.remove()" aria-label="Dismiss">
+            <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+          </button>
         </div>
       {% endfor %}
     </div>
@@ -131,30 +75,31 @@
 {% endwith %}
 
 <!-- Main Content -->
-<main class="mt-[64px] {% block main_class %}{% endblock %}">
+<main class="{% block main_class %}main-content{% endblock %}" style="padding-top: 64px; min-height: calc(100vh - 64px);">
   {% block content %}{% endblock %}
 </main>
 
-<!-- Bottom Nav – student only -->
+<!-- Bottom Navigation (logged-in students only) -->
 {% if current_user.is_authenticated and not (current_user.is_admin is defined and current_user.is_admin) %}
-<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-base h-[80px] bg-surface/70 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-4px_12px_rgba(26,28,30,0.08)] rounded-t-xl">
-  <a href="{{ url_for('dashboard') }}" class="flex flex-col items-center justify-center px-4 py-1 rounded-full transition-all {% if request.endpoint == 'dashboard' %}bg-secondary-container text-on-secondary-container nav-active{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
-    <span class="material-symbols-outlined">dashboard</span>
-    <span class="text-caption font-caption">Dashboard</span>
+<nav class="bottom-nav" role="navigation" aria-label="App navigation">
+  <a href="{{ url_for('dashboard') }}" class="bottom-nav__item {% if request.endpoint == 'dashboard' %}bottom-nav__item--active{% endif %}" id="bnav-dashboard">
+    <span class="material-symbols-outlined bottom-nav__icon" style="font-variation-settings:'FILL' {% if request.endpoint == 'dashboard' %}1{% else %}0{% endif %},'wght' 400,'GRAD' 0,'opsz' 24">dashboard</span>
+    <span class="bottom-nav__label">Dashboard</span>
   </a>
-  <a href="{{ url_for('courses') }}" class="flex flex-col items-center justify-center px-4 py-1 rounded-full transition-all {% if request.endpoint == 'courses' %}bg-secondary-container text-on-secondary-container nav-active{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
-    <span class="material-symbols-outlined">search</span>
-    <span class="text-caption font-caption">Courses</span>
+  <a href="{{ url_for('courses') }}" class="bottom-nav__item {% if request.endpoint == 'courses' %}bottom-nav__item--active{% endif %}" id="bnav-courses">
+    <span class="material-symbols-outlined bottom-nav__icon" style="font-variation-settings:'FILL' {% if request.endpoint == 'courses' %}1{% else %}0{% endif %},'wght' 400,'GRAD' 0,'opsz' 24">menu_book</span>
+    <span class="bottom-nav__label">Courses</span>
   </a>
-  <a href="{{ url_for('profile') }}" class="flex flex-col items-center justify-center px-4 py-1 rounded-full transition-all {% if request.endpoint == 'profile' %}bg-secondary-container text-on-secondary-container nav-active{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
-    <span class="material-symbols-outlined">manage_accounts</span>
-    <span class="text-caption font-caption">Profile</span>
+  <a href="{{ url_for('profile') }}" class="bottom-nav__item {% if request.endpoint == 'profile' %}bottom-nav__item--active{% endif %}" id="bnav-profile">
+    <span class="material-symbols-outlined bottom-nav__icon" style="font-variation-settings:'FILL' {% if request.endpoint == 'profile' %}1{% else %}0{% endif %},'wght' 400,'GRAD' 0,'opsz' 24">manage_accounts</span>
+    <span class="bottom-nav__label">Profile</span>
   </a>
-  <a href="{{ url_for('logout') }}" class="flex flex-col items-center justify-center px-4 py-1 rounded-full text-on-surface-variant hover:bg-surface-container transition-all">
-    <span class="material-symbols-outlined">logout</span>
-    <span class="text-caption font-caption">Sign Out</span>
+  <a href="{{ url_for('logout') }}" class="bottom-nav__item" id="bnav-signout">
+    <span class="material-symbols-outlined bottom-nav__icon" style="font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24">logout</span>
+    <span class="bottom-nav__label">Sign Out</span>
   </a>
 </nav>
+<div style="height: 80px;"></div>
 {% endif %}
 
 <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>

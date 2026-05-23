@@ -1,84 +1,336 @@
 {% extends "base.html" %}
 {% block title %}Student Hub – Start Your Application{% endblock %}
-{% block body_class %}{% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<section class="flex flex-col items-center text-center px-margin-mobile pt-xl pb-lg">
-  <div class="inline-flex items-center gap-xs px-md py-xs bg-primary-fixed text-primary rounded-full text-label-md font-label-md mb-lg">
-    <span class="material-symbols-outlined text-[16px]">auto_awesome</span>
-    Applications Open · Fall 2026
+<!-- ─── HERO SECTION with Canvas Particles ─────────────────── -->
+<section class="landing-hero" id="hero">
+  <canvas id="particles-canvas" class="hero-canvas" aria-hidden="true"></canvas>
+
+  <div class="hero-content">
+    <div class="hero__badge" id="hero-badge">
+      <span class="hero__badge-dot"></span>
+      Applications Open · Fall 2026
+    </div>
+
+    <h1 class="hero__title" id="hero-title">
+      Your academic<br>
+      <span class="hero__title-accent">journey</span> starts here.
+    </h1>
+
+    <p class="hero__subtitle" id="hero-subtitle">
+      Register in minutes, manage your enrollment, and stay on track — all in one place.
+    </p>
+
+    <div class="hero__buttons" id="hero-buttons">
+      <a href="{{ url_for('register') }}" class="btn btn--hero-primary" id="hero-cta">
+        <span class="material-symbols-outlined" style="font-size:20px;font-variation-settings:'FILL' 1">rocket_launch</span>
+        Start Application
+      </a>
+      <a href="{{ url_for('login') }}" class="btn btn--hero-secondary" id="hero-signin">
+        <span class="material-symbols-outlined" style="font-size:18px;">login</span>
+        Sign In
+      </a>
+    </div>
+
+    <!-- Live counter -->
+    <div class="hero__live-badge" id="hero-live">
+      <span class="live-dot"></span>
+      <span id="live-count">—</span> students enrolled
+    </div>
   </div>
-  <h1 class="text-h1 font-h1 text-primary max-w-sm mb-md">Your academic journey starts here.</h1>
-  <p class="text-body-lg font-body-lg text-on-surface-variant max-w-xs mb-xl">Register in minutes, manage your enrollment, and stay on track — all in one place.</p>
-  <div class="flex gap-sm flex-wrap justify-center">
-    <a href="{{ url_for('register') }}" class="h-[52px] px-xl bg-primary text-on-primary rounded-xl font-label-md text-label-md shadow-[0_4px_14px_rgba(0,49,126,0.3)] hover:shadow-[0_6px_20px_rgba(0,49,126,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-xs">
-      Start Application
-      <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
-    </a>
-    <a href="{{ url_for('login') }}" class="h-[52px] px-xl glass-card text-primary rounded-xl font-label-md text-label-md hover:bg-surface-container-high/50 transition-all flex items-center gap-xs">
-      Sign In
-    </a>
+
+  <!-- Floating decorative orbs -->
+  <div class="hero__orb hero__orb--1" aria-hidden="true"></div>
+  <div class="hero__orb hero__orb--2" aria-hidden="true"></div>
+  <div class="hero__orb hero__orb--3" aria-hidden="true"></div>
+</section>
+
+<!-- ─── LIVE STATS COUNTERS ───────────────────────────────────── -->
+<section class="stats-section" aria-label="Application statistics">
+  <div class="stats-section__inner">
+    <div class="stat-counter" id="stat-programs">
+      <div class="stat-counter__num" data-target="20">0</div>
+      <div class="stat-counter__symbol">+</div>
+      <div class="stat-counter__label">Programs Available</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-counter" id="stat-time">
+      <div class="stat-counter__num" data-target="3">0</div>
+      <div class="stat-counter__symbol">min</div>
+      <div class="stat-counter__label">To Complete</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-counter" id="stat-online">
+      <div class="stat-counter__num" data-target="100">0</div>
+      <div class="stat-counter__symbol">%</div>
+      <div class="stat-counter__label">Online Process</div>
+    </div>
+    <div class="stat-divider" aria-hidden="true"></div>
+    <div class="stat-counter" id="stat-students">
+      <div class="stat-counter__num" data-target="0" id="stat-live-count">—</div>
+      <div class="stat-counter__symbol"></div>
+      <div class="stat-counter__label">Students Registered</div>
+    </div>
   </div>
 </section>
 
-<!-- Stats strip -->
-<div class="px-margin-mobile mb-lg flex gap-sm overflow-x-auto no-scrollbar">
-  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
-    <div class="text-h2 font-h2 text-primary">20+</div>
-    <div class="text-caption font-caption text-on-surface-variant">Programs</div>
-  </div>
-  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
-    <div class="text-h2 font-h2 text-secondary">3 min</div>
-    <div class="text-caption font-caption text-on-surface-variant">To Register</div>
-  </div>
-  <div class="glass-card rounded-xl px-lg py-md text-center shrink-0 flex-1 min-w-[100px]">
-    <div class="text-h2 font-h2 text-primary">100%</div>
-    <div class="text-caption font-caption text-on-surface-variant">Online</div>
-  </div>
-</div>
-
-<!-- Feature grid -->
-<section class="px-margin-mobile grid grid-cols-2 gap-md pb-xl">
-  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
-    <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
-      <span class="material-symbols-outlined text-primary">bolt</span>
-    </div>
-    <h3 class="text-h3 font-h3">Fast &amp; Simple</h3>
-    <p class="text-caption font-caption text-on-surface-variant">Four-step registration. No paperwork.</p>
-  </div>
-  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
-    <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
-      <span class="material-symbols-outlined text-secondary">lock</span>
-    </div>
-    <h3 class="text-h3 font-h3">Secure</h3>
-    <p class="text-caption font-caption text-on-surface-variant">bcrypt passwords, CSRF protection.</p>
-  </div>
-  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
-    <div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center">
-      <span class="material-symbols-outlined text-primary">smartphone</span>
-    </div>
-    <h3 class="text-h3 font-h3">Mobile-First</h3>
-    <p class="text-caption font-caption text-on-surface-variant">Works on any screen size.</p>
-  </div>
-  <div class="glass-card rounded-xl p-md flex flex-col gap-sm hover:shadow-md transition-shadow">
-    <div class="w-12 h-12 rounded-xl bg-secondary-container flex items-center justify-center">
-      <span class="material-symbols-outlined text-secondary">verified</span>
-    </div>
-    <h3 class="text-h3 font-h3">Instant ID</h3>
-    <p class="text-caption font-caption text-on-surface-variant">Get your student ID immediately.</p>
+<!-- ─── FEATURES BENTO GRID ───────────────────────────────────── -->
+<section class="features-section" aria-label="Platform features">
+  <div class="features-section__header">
+    <span class="section-eyebrow">Why Student Hub?</span>
+    <h2 class="section-title">Everything you need to enroll.</h2>
   </div>
 
-  <!-- CTA card – full width -->
-  <div class="col-span-2 bg-primary rounded-xl p-lg flex items-center justify-between overflow-hidden relative">
-    <div class="absolute right-0 top-0 w-32 h-32 rounded-full bg-white/5 -translate-y-8 translate-x-8"></div>
-    <div>
-      <h3 class="text-h3 font-h3 text-on-primary">Admin Portal</h3>
-      <p class="text-caption font-caption text-on-primary/70 mt-xs">Manage students &amp; enrolments</p>
+  <div class="features-bento">
+    <!-- Large card: Speed -->
+    <div class="feature-bento-card feature-bento-card--large feature-bento-card--primary" id="feature-speed">
+      <div class="feature-bento-card__icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:36px;font-variation-settings:'FILL' 1">bolt</span>
+      </div>
+      <h3 class="feature-bento-card__title">Lightning Fast</h3>
+      <p class="feature-bento-card__text">Four-step wizard with real-time validation. No paperwork, no waiting. Go from zero to enrolled in under 3 minutes.</p>
+      <div class="feature-bento-card__pill">3-min average</div>
     </div>
-    <a href="{{ url_for('admin_login') }}" class="flex items-center gap-xs h-10 px-md bg-white/15 text-on-primary rounded-xl text-label-md font-label-md hover:bg-white/25 transition-colors shrink-0">
-      Access <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+
+    <!-- Security card -->
+    <div class="feature-bento-card feature-bento-card--dark" id="feature-secure">
+      <div class="feature-bento-card__icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:32px;font-variation-settings:'FILL' 1">shield_lock</span>
+      </div>
+      <h3 class="feature-bento-card__title">Bank-Grade Security</h3>
+      <p class="feature-bento-card__text">bcrypt hashing, CSRF protection & rate limiting.</p>
+    </div>
+
+    <!-- Mobile card -->
+    <div class="feature-bento-card" id="feature-mobile">
+      <div class="feature-bento-card__icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:32px;font-variation-settings:'FILL' 1">phone_iphone</span>
+      </div>
+      <h3 class="feature-bento-card__title">Mobile-First</h3>
+      <p class="feature-bento-card__text">Designed for any screen, optimized for touch.</p>
+    </div>
+
+    <!-- ID card -->
+    <div class="feature-bento-card feature-bento-card--gold" id="feature-id">
+      <div class="feature-bento-card__icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:32px;font-variation-settings:'FILL' 1">badge</span>
+      </div>
+      <h3 class="feature-bento-card__title">Instant Student ID</h3>
+      <p class="feature-bento-card__text">Get your unique student ID the moment you finish.</p>
+      <div class="feature-id-preview">STU-2026-XXXX</div>
+    </div>
+
+    <!-- Analytics card -->
+    <div class="feature-bento-card feature-bento-card--wide" id="feature-analytics">
+      <div class="feature-bento-card__icon-wrap">
+        <span class="material-symbols-outlined" style="font-size:32px;font-variation-settings:'FILL' 1">analytics</span>
+      </div>
+      <h3 class="feature-bento-card__title">Smart Dashboard</h3>
+      <p class="feature-bento-card__text">Track your registration progress, upcoming deadlines, and personalized course recommendations in real time.</p>
+      <!-- Mini progress preview -->
+      <div class="mini-progress-wrap">
+        <div class="mini-progress-bar">
+          <div class="mini-progress-fill" style="width:65%"></div>
+        </div>
+        <span class="mini-progress-label">65% complete</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ──────────────────────────────────────────── -->
+<section class="how-section" aria-label="How it works">
+  <div class="how-section__inner">
+    <div class="features-section__header">
+      <span class="section-eyebrow">Process</span>
+      <h2 class="section-title">Four simple steps.</h2>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step" id="step-1">
+        <div class="how-step__num">01</div>
+        <div class="how-step__connector" aria-hidden="true"></div>
+        <div class="how-step__content">
+          <span class="material-symbols-outlined how-step__icon" style="font-variation-settings:'FILL' 1">person</span>
+          <h3 class="how-step__title">Personal Info</h3>
+          <p class="how-step__text">Name, date of birth, contact details.</p>
+        </div>
+      </div>
+      <div class="how-step" id="step-2">
+        <div class="how-step__num">02</div>
+        <div class="how-step__connector" aria-hidden="true"></div>
+        <div class="how-step__content">
+          <span class="material-symbols-outlined how-step__icon" style="font-variation-settings:'FILL' 1">home_pin</span>
+          <h3 class="how-step__title">Address</h3>
+          <p class="how-step__text">Your current residential address.</p>
+        </div>
+      </div>
+      <div class="how-step" id="step-3">
+        <div class="how-step__num">03</div>
+        <div class="how-step__connector" aria-hidden="true"></div>
+        <div class="how-step__content">
+          <span class="material-symbols-outlined how-step__icon" style="font-variation-settings:'FILL' 1">school</span>
+          <h3 class="how-step__title">Academics</h3>
+          <p class="how-step__text">Major, enrollment type, prior education.</p>
+        </div>
+      </div>
+      <div class="how-step" id="step-4">
+        <div class="how-step__num">04</div>
+        <div class="how-step__content">
+          <span class="material-symbols-outlined how-step__icon" style="font-variation-settings:'FILL' 1">check_circle</span>
+          <h3 class="how-step__title">Confirm</h3>
+          <p class="how-step__text">Submit & get your Student ID instantly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA / ADMIN PORTAL ────────────────────────────────────── -->
+<section class="cta-band" aria-label="Admin portal">
+  <div class="cta-band__inner">
+    <div class="cta-band__content">
+      <span class="material-symbols-outlined cta-band__icon" style="font-variation-settings:'FILL' 1">admin_panel_settings</span>
+      <div>
+        <h3 class="cta-band__title">Admin Portal</h3>
+        <p class="cta-band__text">Manage students, view analytics &amp; export reports</p>
+      </div>
+    </div>
+    <a href="{{ url_for('admin_login') }}" class="btn btn--cta-band" id="cta-admin">
+      Access Portal
+      <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
     </a>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// ── Particle canvas ────────────────────────────────────────────────
+(function initParticles() {
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+
+  function resize() {
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function rand(a, b) { return Math.random() * (b - a) + a; }
+
+  function Particle() {
+    this.reset = function() {
+      this.x  = rand(0, W);
+      this.y  = rand(0, H);
+      this.r  = rand(1.5, 4);
+      this.vx = rand(-0.4, 0.4);
+      this.vy = rand(-0.6, -0.1);
+      this.alpha = rand(0.15, 0.55);
+    };
+    this.reset();
+  }
+
+  for (let i = 0; i < 70; i++) particles.push(new Particle());
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const dark = isDark();
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = dark
+        ? `rgba(212,175,55,${p.alpha})`
+        : `rgba(0,49,126,${p.alpha})`;
+      ctx.fill();
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.y < -10 || p.x < -10 || p.x > W + 10) p.reset();
+    });
+
+    // Draw connecting lines
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          const alpha = (1 - dist / 100) * 0.12;
+          ctx.strokeStyle = dark
+            ? `rgba(212,175,55,${alpha})`
+            : `rgba(0,49,126,${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── Live counter from API ─────────────────────────────────────────
+(function loadLiveStats() {
+  fetch('/api/stats')
+    .then(r => r.json())
+    .then(data => {
+      const lc = document.getElementById('live-count');
+      if (lc) lc.textContent = data.total.toLocaleString();
+      const slc = document.getElementById('stat-live-count');
+      if (slc) {
+        slc.removeAttribute('data-target');
+        slc.textContent = data.total;
+        animateCounter(slc, 0, data.total, 1200);
+      }
+    })
+    .catch(() => {
+      const lc = document.getElementById('live-count');
+      if (lc) lc.textContent = '2,400+';
+    });
+})();
+
+// ── Number counter animations ─────────────────────────────────────
+function animateCounter(el, from, to, duration) {
+  const start = performance.now();
+  function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + (to - from) * ease);
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const target = parseInt(el.dataset.target, 10);
+    if (!isNaN(target)) animateCounter(el, 0, target, 1400);
+    io.unobserve(el);
+  });
+}, { threshold: 0.4 });
+
+document.querySelectorAll('.stat-counter__num[data-target]').forEach(el => io.observe(el));
+
+// ── How-steps scroll reveal ───────────────────────────────────────
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('revealed');
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.how-step, .feature-bento-card').forEach(el => revealObs.observe(el));
+</script>
 {% endblock %}

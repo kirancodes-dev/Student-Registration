@@ -3,103 +3,346 @@
 {% block body_class %}{% endblock %}
 {% block main_class %}{% endblock %}
 
-{% block content %}
-<div class="px-margin-mobile max-w-5xl mx-auto pt-lg pb-xl">
+{% block head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
 
-  <!-- Header -->
-  <div class="flex flex-wrap items-center justify-between gap-md mb-lg">
-    <div>
-      <h1 class="text-h2 font-h2 text-on-surface flex items-center gap-sm">
-        <span class="material-symbols-outlined text-primary">admin_panel_settings</span>
+{% block content %}
+<div class="admin-layout" id="admin-layout">
+
+  <!-- ── HEADER ──────────────────────────────────────────────── -->
+  <div class="admin-header">
+    <div class="admin-header__left">
+      <h1 class="admin-header__title">
+        <span class="material-symbols-outlined" style="font-size:28px;font-variation-settings:'FILL' 1;color:var(--primary)">admin_panel_settings</span>
         Admin Dashboard
       </h1>
-      <p class="text-caption font-caption text-on-surface-variant mt-xs">{{ now.strftime('%B %-d, %Y') }}</p>
+      <p class="admin-header__sub">{{ now.strftime('%A, %B %-d, %Y') }}</p>
     </div>
-    <form method="GET" action="{{ url_for('admin_dashboard') }}" class="flex gap-sm items-center">
-      <div class="glass-card rounded-xl px-md flex items-center gap-sm ring-1 ring-outline-variant/40 focus-within:ring-2 focus-within:ring-primary transition-all">
-        <span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
-        <input class="bg-transparent border-none focus:ring-0 text-body-md placeholder:text-on-surface-variant/50 py-sm w-48"
-               type="search" name="q" value="{{ search }}" placeholder="Search students…"/>
+
+    <form method="GET" action="{{ url_for('admin_dashboard') }}" class="admin-search" role="search">
+      <div class="admin-search__input-wrap">
+        <span class="material-symbols-outlined admin-search__icon">search</span>
+        <input class="admin-search__input"
+               type="search" name="q" value="{{ search }}"
+               placeholder="Search students…"
+               id="admin-search-input"
+               aria-label="Search students"/>
       </div>
-      <button type="submit" class="h-10 px-md bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:shadow-md transition-shadow">
-        Search
-      </button>
+      <button type="submit" class="admin-search__btn" id="admin-search-submit">Search</button>
       {% if search %}
-      <a href="{{ url_for('admin_dashboard') }}" class="h-10 px-md glass-card text-on-surface-variant rounded-xl font-label-md text-label-md hover:bg-surface-container-high/50 transition-colors flex items-center">
-        Clear
+      <a href="{{ url_for('admin_dashboard') }}" class="admin-search__clear" id="admin-search-clear">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span> Clear
       </a>
       {% endif %}
     </form>
   </div>
 
-  <!-- Stats -->
-  <div class="flex gap-md mb-lg overflow-x-auto no-scrollbar">
-    {% for label, value, color in [
-      ('Total Students', total, 'primary'),
-      ('Showing', students|length, 'secondary'),
-      ('Full-time', students|selectattr('enrollment_type','eq','full_time')|list|length, 'primary'),
-      ('Part-time', students|selectattr('enrollment_type','eq','part_time')|list|length, 'secondary'),
-    ] %}
-    <div class="glass-card rounded-xl px-lg py-md shadow-sm shrink-0 flex-1 min-w-[110px]">
-      <p class="text-caption font-caption text-on-surface-variant uppercase tracking-wider">{{ label }}</p>
-      <p class="text-h2 font-h2 text-{{ color }} mt-xs">{{ value }}</p>
+  <!-- ── KPI STAT CARDS ──────────────────────────────────────── -->
+  <div class="kpi-grid">
+    <div class="kpi-card kpi-card--primary" id="kpi-total">
+      <div class="kpi-card__icon">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">groups</span>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Total Students</p>
+        <p class="kpi-card__value" id="kpi-total-val">{{ total }}</p>
+      </div>
+      <div class="kpi-card__trend">
+        <span class="material-symbols-outlined" style="font-size:14px;color:var(--success)">trending_up</span>
+        <span style="font-size:12px;color:var(--success);font-weight:600">All time</span>
+      </div>
     </div>
-    {% endfor %}
+
+    <div class="kpi-card" id="kpi-showing">
+      <div class="kpi-card__icon">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">filter_list</span>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Showing</p>
+        <p class="kpi-card__value">{{ students|length }}</p>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card--success" id="kpi-fulltime">
+      <div class="kpi-card__icon">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">work</span>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Full-time</p>
+        <p class="kpi-card__value" id="kpi-ft-val">—</p>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card--gold" id="kpi-parttime">
+      <div class="kpi-card__icon">
+        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">schedule</span>
+      </div>
+      <div class="kpi-card__body">
+        <p class="kpi-card__label">Part-time</p>
+        <p class="kpi-card__value" id="kpi-pt-val">—</p>
+      </div>
+    </div>
   </div>
 
+  <!-- ── CHARTS ROW ──────────────────────────────────────────── -->
+  <div class="charts-row">
+    <!-- Monthly Registrations (bar) -->
+    <div class="chart-card chart-card--bar" id="chart-monthly-card">
+      <div class="chart-card__header">
+        <h2 class="chart-card__title">
+          <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">bar_chart</span>
+          Monthly Registrations
+        </h2>
+        <span class="chart-card__badge">Last 6 months</span>
+      </div>
+      <div class="chart-card__body">
+        <canvas id="chart-monthly" role="img" aria-label="Monthly student registrations bar chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Major Breakdown (donut) -->
+    <div class="chart-card chart-card--donut" id="chart-major-card">
+      <div class="chart-card__header">
+        <h2 class="chart-card__title">
+          <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">donut_large</span>
+          Major Breakdown
+        </h2>
+        <span class="chart-card__badge">By program</span>
+      </div>
+      <div class="chart-card__body chart-card__body--donut">
+        <canvas id="chart-major" role="img" aria-label="Student major distribution donut chart"></canvas>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── STUDENT TABLE ────────────────────────────────────────── -->
   {% if students %}
-  <!-- Table (scrollable on mobile) -->
-  <div class="glass-card rounded-xl shadow-sm overflow-auto">
-    <table class="w-full min-w-[640px]">
-      <thead>
-        <tr class="border-b border-outline-variant/20">
-          {% for col, label in [('student_id','Student ID'),('last_name','Name'),('email','Email'),('major','Major'),('enrollment_type','Type'),('registration_date','Registered')] %}
-          <th class="px-md py-sm text-left text-caption font-caption text-on-surface-variant uppercase tracking-wider bg-surface-container-low">
-            <a href="{{ url_for('admin_dashboard', q=search, sort=col, order='asc' if sort==col and order=='desc' else 'desc') }}"
-               class="flex items-center gap-xs hover:text-primary transition-colors">
-              {{ label }}
-              {% if sort == col %}<span class="material-symbols-outlined text-[14px]">{{ 'arrow_upward' if order == 'asc' else 'arrow_downward' }}</span>{% endif %}
-            </a>
-          </th>
+  <div class="admin-table-card" id="admin-table-card">
+    <div class="admin-table-card__header">
+      <h2 class="admin-table-card__title">
+        <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">table_view</span>
+        Student Records
+      </h2>
+      <span class="admin-table-card__count">{{ students|length }} result{{ 's' if students|length != 1 }}</span>
+    </div>
+    <div class="admin-table-scroll">
+      <table class="admin-table" id="admin-table">
+        <thead>
+          <tr>
+            {% for col, label in [('student_id','Student ID'),('last_name','Name'),('email','Email'),('major','Major'),('enrollment_type','Type'),('registration_date','Registered')] %}
+            <th class="admin-table__th">
+              <a href="{{ url_for('admin_dashboard', q=search, sort=col, order='asc' if sort==col and order=='desc' else 'desc') }}"
+                 class="admin-table__sort-link"
+                 aria-label="Sort by {{ label }}">
+                {{ label }}
+                {% if sort == col %}
+                <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">
+                  {{ 'arrow_upward' if order == 'asc' else 'arrow_downward' }}
+                </span>
+                {% endif %}
+              </a>
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+          <tr class="admin-table__row" id="student-row-{{ loop.index }}">
+            <td class="admin-table__td">
+              <span class="student-id-badge">{{ s.student_id }}</span>
+            </td>
+            <td class="admin-table__td">
+              <div class="student-name-cell">
+                <div class="student-avatar" aria-hidden="true">{{ s.first_name[0] }}{{ s.last_name[0] }}</div>
+                <div>
+                  <p class="student-name-cell__name">{{ s.full_name }}</p>
+                  <p class="student-name-cell__sub">{{ s.gender.replace('_',' ').title() }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="admin-table__td admin-table__td--muted">{{ s.email }}</td>
+            <td class="admin-table__td">{{ s.major.replace('_',' ').title() }}</td>
+            <td class="admin-table__td">
+              <span class="enroll-badge enroll-badge--{% if s.enrollment_type == 'full_time' %}ft{% else %}pt{% endif %}">
+                {{ s.enrollment_type.replace('_','-').title() }}
+              </span>
+            </td>
+            <td class="admin-table__td admin-table__td--muted">{{ s.registration_date.strftime('%b %-d, %Y') }}</td>
+          </tr>
           {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for s in students %}
-        <tr class="border-b border-outline-variant/10 last:border-0 hover:bg-surface-container/50 transition-colors">
-          <td class="px-md py-sm">
-            <span class="text-caption font-caption font-mono bg-primary-fixed text-primary px-xs py-0.5 rounded">{{ s.student_id }}</span>
-          </td>
-          <td class="px-md py-sm">
-            <p class="text-label-md font-label-md text-on-surface">{{ s.full_name }}</p>
-            <p class="text-caption font-caption text-on-surface-variant">{{ s.gender.replace('_',' ').title() }}</p>
-          </td>
-          <td class="px-md py-sm text-body-md font-body-md text-on-surface-variant">{{ s.email }}</td>
-          <td class="px-md py-sm text-body-md font-body-md">{{ s.major.replace('_',' ').title() }}</td>
-          <td class="px-md py-sm">
-            <span class="text-caption font-caption font-bold px-sm py-0.5 rounded-full
-              {% if s.enrollment_type == 'full_time' %}bg-secondary-container text-on-secondary-container{% else %}bg-tertiary-fixed text-tertiary{% endif %}">
-              {{ s.enrollment_type.replace('_','-').title() }}
-            </span>
-          </td>
-          <td class="px-md py-sm text-caption font-caption text-on-surface-variant whitespace-nowrap">
-            {{ s.registration_date.strftime('%b %-d, %Y') }}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   {% else %}
-  <div class="text-center py-[80px]">
-    <span class="material-symbols-outlined text-[64px] text-outline">search_off</span>
-    <h3 class="text-h3 font-h3 text-on-surface mt-md mb-xs">No students found</h3>
-    <p class="text-body-md font-body-md text-on-surface-variant">
-      {% if search %}No results for "<strong>{{ search }}</strong>".{% else %}No students have registered yet.{% endif %}
+  <div class="admin-empty" id="admin-empty">
+    <span class="material-symbols-outlined admin-empty__icon">manage_search</span>
+    <h3 class="admin-empty__title">No students found</h3>
+    <p class="admin-empty__text">
+      {% if search %}No results for "<strong>{{ search }}</strong>". Try a different query.{% else %}No students have registered yet.{% endif %}
     </p>
+    {% if search %}
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn--secondary" style="margin-top:16px;">Clear Search</a>
+    {% endif %}
   </div>
   {% endif %}
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function initAdminDashboard() {
+  const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+  const PALETTE = ['#00317e','#D4AF37','#10B981','#6366f1','#f97316','#ec4899','#14b8a6','#a855f7'];
+
+  function chartColors() {
+    return {
+      gridColor: isDark() ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)',
+      textColor:  isDark() ? '#e5e7eb' : '#374151',
+      bgColor:    isDark() ? '#1e2535' : '#ffffff',
+    };
+  }
+
+  let barChart, donutChart;
+
+  fetch('/api/stats')
+    .then(r => r.json())
+    .then(data => {
+      // Fill KPI cards
+      animVal('kpi-ft-val', data.full_time);
+      animVal('kpi-pt-val', data.part_time);
+
+      const cc = chartColors();
+
+      // ── Bar chart – monthly registrations
+      const barCtx = document.getElementById('chart-monthly');
+      if (barCtx) {
+        barChart = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: data.monthly.map(m => m.month),
+            datasets: [{
+              label: 'Registrations',
+              data: data.monthly.map(m => m.count),
+              backgroundColor: data.monthly.map((_, i) =>
+                i === data.monthly.length - 1
+                  ? '#D4AF37'
+                  : 'rgba(0,49,126,0.75)'
+              ),
+              borderRadius: 8,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: isDark() ? '#1e2535' : '#fff',
+                titleColor: cc.textColor,
+                bodyColor: cc.textColor,
+                borderColor: isDark() ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                borderWidth: 1,
+              }
+            },
+            scales: {
+              x: { grid: { color: cc.gridColor }, ticks: { color: cc.textColor } },
+              y: { grid: { color: cc.gridColor }, ticks: { color: cc.textColor }, beginAtZero: true },
+            },
+            animation: { duration: 900, easing: 'easeOutQuart' },
+          }
+        });
+      }
+
+      // ── Donut chart – major breakdown
+      const donutCtx = document.getElementById('chart-major');
+      if (donutCtx && data.majors.length) {
+        const topMajors = data.majors.slice(0, 7);
+        const otherCount = data.majors.slice(7).reduce((s, m) => s + m.count, 0);
+        if (otherCount > 0) topMajors.push({ name: 'Other', count: otherCount });
+
+        donutChart = new Chart(donutCtx, {
+          type: 'doughnut',
+          data: {
+            labels: topMajors.map(m => m.name),
+            datasets: [{
+              data: topMajors.map(m => m.count),
+              backgroundColor: PALETTE,
+              borderWidth: 2,
+              borderColor: isDark() ? '#1e2535' : '#ffffff',
+              hoverOffset: 8,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: isDark() ? '#1e2535' : '#fff',
+                titleColor: cc.textColor,
+                bodyColor: cc.textColor,
+                borderColor: isDark() ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+                borderWidth: 1,
+              }
+            },
+            animation: { animateRotate: true, duration: 900, easing: 'easeOutQuart' },
+          }
+        });
+
+        // Build legend
+        const legend = document.getElementById('donut-legend');
+        if (legend) {
+          legend.innerHTML = topMajors.map((m, i) => `
+            <div class="donut-legend-item">
+              <span class="donut-legend-dot" style="background:${PALETTE[i % PALETTE.length]}"></span>
+              <span class="donut-legend-name">${m.name}</span>
+              <span class="donut-legend-count">${m.count}</span>
+            </div>
+          `).join('');
+        }
+      }
+    })
+    .catch(console.warn);
+
+  function animVal(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let n = 0;
+    const step = () => {
+      n = Math.min(n + Math.ceil(val / 30), val);
+      el.textContent = n;
+      if (n < val) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  // Re-color charts on theme change
+  document.getElementById('theme-toggle')?.addEventListener('click', () => {
+    setTimeout(() => {
+      const cc = chartColors();
+      [barChart, donutChart].forEach(c => {
+        if (!c) return;
+        if (c.options.scales) {
+          Object.values(c.options.scales).forEach(sc => {
+            if (sc.grid) sc.grid.color = cc.gridColor;
+            if (sc.ticks) sc.ticks.color = cc.textColor;
+          });
+        }
+        if (c.data.datasets[0]?.borderColor) {
+          c.data.datasets[0].borderColor = isDark() ? '#1e2535' : '#ffffff';
+        }
+        c.update();
+      });
+    }, 50);
+  });
+})();
+</script>
 {% endblock %}
