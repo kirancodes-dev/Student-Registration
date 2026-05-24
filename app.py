@@ -30,6 +30,10 @@ def create_app():
     # Apply security session configuration
     app.config.update(get_session_config())
 
+    # Trust proxy headers (e.g. localhost.run reverse proxy)
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
+
     # Extensions
     db.init_app(app)
     bcrypt.init_app(app)
