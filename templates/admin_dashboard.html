@@ -121,12 +121,17 @@
   <!-- ── STUDENT TABLE ────────────────────────────────────────── -->
   {% if students %}
   <div class="admin-table-card" id="admin-table-card">
-    <div class="admin-table-card__header">
-      <h2 class="admin-table-card__title">
-        <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">table_view</span>
-        Student Records
-      </h2>
-      <span class="admin-table-card__count">{{ students|length }} result{{ 's' if students|length != 1 }}</span>
+    <div class="admin-table-card__header" style="display:flex; justify-content:space-between; align-items:center;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <h2 class="admin-table-card__title" style="margin:0; display:flex; align-items:center; gap:6px;">
+          <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">table_view</span>
+          Student Records
+        </h2>
+        <span class="admin-table-card__count">{{ students|length }} result{{ 's' if students|length != 1 }}</span>
+      </div>
+      <a href="{{ url_for('admin_export_csv') }}" class="btn btn--secondary" style="font-size:12px; padding:6px 12px; display:flex; align-items:center; gap:4px; margin:0;" id="admin-export-csv-btn">
+        <span class="material-symbols-outlined" style="font-size:16px;">download</span> Export CSV
+      </a>
     </div>
     <div class="admin-table-scroll">
       <table class="admin-table" id="admin-table">

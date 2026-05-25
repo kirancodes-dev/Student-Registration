@@ -487,6 +487,38 @@ def create_app():
             total=Student.query.count(),
         )
 
+    @app.route('/admin/export/csv')
+    @login_required
+    def admin_export_csv():
+        if not isinstance(current_user, Admin):
+            abort(403)
+        import csv
+        import io
+        from flask import Response
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([
+            'Student ID', 'First Name', 'Last Name', 'Email', 'Phone',
+            'Date of Birth', 'Gender', 'Major', 'Enrollment Type',
+            'Street', 'City', 'State', 'Zip Code', 'Country',
+            'High School', 'Graduation Year', 'Registration Date'
+        ])
+        students = Student.query.all()
+        for s in students:
+            writer.writerow([
+                s.student_id, s.first_name, s.last_name, s.email, s.phone,
+                s.dob.strftime('%Y-%m-%d') if s.dob else '', s.gender, s.major, s.enrollment_type,
+                s.street, s.city, s.state, s.zip_code, s.country,
+                s.high_school, s.graduation_year, s.registration_date.strftime('%Y-%m-%d %H:%M:%S') if s.registration_date else ''
+            ])
+        output.seek(0)
+        return Response(
+            output.getvalue(),
+            mimetype="text/csv",
+            headers={"Content-disposition": "attachment; filename=students_export.csv"}
+        )
+
     # -----------------------------------------------------------------------
     # API – live stats (public, read-only)
     # -----------------------------------------------------------------------
